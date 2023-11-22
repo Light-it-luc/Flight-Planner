@@ -20,20 +20,13 @@ class FlightFactory extends Factory
      */
     public function definition(): array
     {
-        $cities = City::factory(2)->create();
-        $airline = Airline::factory()->create();
-
-        foreach($cities as $city) {
-            $city->airlines()->attach($airline);
-        }
-
-        $departure = Carbon::now()->addDays(rand(0, 365));
+        $departure = now()->addDays(rand(0, 7));
 
         return [
             'flight_number' => Flight::generateFlightNumber(),
-            'airline_id' => $airline->id,
-            'origin_city_id' => $cities[0]->id,
-            'dest_city_id' => $cities[1]->id,
+            'airline_id' => (Airline::factory()->create())->id,
+            'origin_city_id' => (City::factory()->create())->id,
+            'dest_city_id' => (City::factory()->create())->id,
             'departure' => $departure,
             'arrival' => $departure->copy()->addHours(rand(1, 16))
         ];
