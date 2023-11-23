@@ -27,8 +27,8 @@ class FlightFactory extends Factory
             'airline_id' => (Airline::factory()->create())->id,
             'origin_city_id' => (City::factory()->create())->id,
             'dest_city_id' => (City::factory()->create())->id,
-            'departure' => $departure,
-            'arrival' => $departure->addHours(rand(1, 18))
+            'departure_at' => $departure,
+            'arrival_at' => $departure->addHours(rand(1, 18))
         ];
     }
 }
