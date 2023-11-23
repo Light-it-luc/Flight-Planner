@@ -30,6 +30,6 @@ class Flight extends Model
         $uppercaseChars = collect(range('A', 'Z'));
         $sevenDigitNum = rand(1000000, 9999999);
 
-        return $uppercaseChars->random() . strval($sevenDigitNum);
+        return $uppercaseChars->random() . $sevenDigitNum;
     }
 }
