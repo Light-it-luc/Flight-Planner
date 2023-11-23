@@ -27,15 +27,9 @@ class Flight extends Model
 
     public static function generateFlightNumber($length = 8): string
     {
-        $num = implode('', range('0', '9'));
-        $alphas = implode('', range('A', 'Z'));
+        $uppercaseChars = collect()->range('A', 'Z');
+        $sevenDigitNum = rand(1000000, 9999999);
 
-        $flight_n = $alphas[rand(0, strlen($alphas) - 1)];
-
-        for($i = 1; $i < $length; $i++) {
-            $flight_n .= $num[rand(0, strlen($num) - 1)];
-        }
-
-        return $flight_n;
+        return $uppercaseChars->random() . strval($sevenDigitNum);
     }
 }
