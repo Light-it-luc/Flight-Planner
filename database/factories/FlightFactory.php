@@ -2,8 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\City;
-use App\Models\Airline;
 use App\Models\Flight;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -13,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class FlightFactory extends Factory
 {
+    protected $model = Flight::class;
+
     /**
      * Define the model's default state.
      *
@@ -24,9 +24,9 @@ class FlightFactory extends Factory
 
         return [
             'flight_number' => Flight::generateFlightNumber(),
-            'airline_id' => (Airline::factory()->create())->id,
-            'origin_city_id' => (City::factory()->create())->id,
-            'dest_city_id' => (City::factory()->create())->id,
+            'airline_id' => (AirlineFactory::new()->create())->id,
+            'origin_city_id' => (CityFactory::new()->create())->id,
+            'dest_city_id' => (CityFactory::new()->create())->id,
             'departure_at' => $departure,
             'arrival_at' => $departure->addHours(rand(1, 18))
         ];

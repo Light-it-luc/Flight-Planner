@@ -9,9 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Airline extends Model
 {
-    use HasFactory;
-
-    protected $guarded = [];
+    protected $guarded = ['id'];
 
     public function flights(): HasMany {
         return $this->hasMany(Flight::class);

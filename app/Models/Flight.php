@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Flight extends Model
 {
-    use HasFactory;
-
-    protected $guarded = [];
+    protected $guarded = ['id'];
 
     public function origin(): BelongsTo
     {

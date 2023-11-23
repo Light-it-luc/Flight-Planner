@@ -9,9 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class City extends Model
 {
-    use HasFactory;
-
-    protected $guarded = [];
+    protected $guarded = ['id'];
 
     public function flightsFrom(): HasMany
     {

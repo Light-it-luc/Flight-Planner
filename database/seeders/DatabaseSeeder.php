@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Flight;
+use Database\Factories\FlightFactory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,6 +12,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Flight::factory(10)->create();
+        FlightFactory::new()->count(10)->create();
     }
 }
