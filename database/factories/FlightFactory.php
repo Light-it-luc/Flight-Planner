@@ -5,7 +5,7 @@ namespace Database\Factories;
 use App\Models\City;
 use App\Models\Airline;
 use App\Models\Flight;
-use Illuminate\Support\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +20,7 @@ class FlightFactory extends Factory
      */
     public function definition(): array
     {
-        $departure = now()->addDays(rand(0, 7));
+        $departure = CarbonImmutable::now()->addDays(rand(0, 7));
 
         return [
             'flight_number' => Flight::generateFlightNumber(),
@@ -28,7 +28,7 @@ class FlightFactory extends Factory
             'origin_city_id' => (City::factory()->create())->id,
             'dest_city_id' => (City::factory()->create())->id,
             'departure' => $departure,
-            'arrival' => $departure->copy()->addHours(rand(1, 16))
+            'arrival' => $departure->addHours(rand(1, 18))
         ];
     }
 }

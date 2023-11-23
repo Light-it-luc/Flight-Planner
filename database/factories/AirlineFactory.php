@@ -17,7 +17,7 @@ class AirlineFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->company() . ' Airline',
+            'name' => $this->faker->unique()->company() . ' Airline',
             'description' => $this->faker->paragraph()
         ];
     }
