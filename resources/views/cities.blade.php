@@ -1,5 +1,7 @@
 <x-layout :title="'Cities'">
 
+    <x-modal></x-modal>
+
     <div class="max-w-6xl m-auto mt-8">
         <div class="overflow-x-auto relative">
         <table class="w-full text-sm text-center">
@@ -72,5 +74,79 @@
     <div class="mt-12 mb-4 px-12">
         {{ $cities->links() }}
     </div>
+
+    <script>
+        $(document).ready(function () {
+
+          function displayModal(title, content) {
+              var modal = document.getElementById('modal')
+
+              $('[modal-title]').text(title)
+              $('[modal-content]').html(content)
+
+              modal.showModal()
+          }
+
+          function closeModal() {
+              var modal = document.getElementById('modal')
+              modal.close()
+          }
+
+          $('[close-modal-btn]').click(closeModal)
+
+          $('button[create-button]').click(function() {
+              var city = {
+                  name: $('input[name="name"]').val().trim(),
+                  country: $('input[name="country"]').val().trim()
+              }
+
+              $.ajax({
+                  type: 'POST',
+                  url: 'http://localhost:80/cities/create',
+                  data: city,
+                  dataType: 'json',
+                  headers: {
+                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                  },
+                  success: function(data) {
+                      var btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
+
+                      $('tr[create-row]').after(
+                          `<tr class="bg-white border-b border-gray-100">
+                              <td class="py-4 px-6">${data.id}</td>
+                              <td class="py-4 px-6">${data.name}</td>
+                              <td class="py-4 px-6">${data.country}</td>
+                              <td class="py-4 px-6">0</td>
+                              <td class="py-4 px-6">0</td>
+                              <td class="py-4 px-6">
+                                  <button id="${data.id}"
+                                          class="${btnClass} edit-btn dark:bg-indigo-600 hover:bg-indigo-400"
+                                      >Edit</button>
+                                  <button id="${data.id}"
+                                          class="${btnClass} del-btn ml-2 dark:bg-red-600 hover:bg-red-400"
+                                      >Delete</button>
+                              </td>
+                          </tr>`
+                      )
+
+                      $('input[name="name"]').val('')
+                      $('input[name="country"]').val('')
+                  },
+                  error: function (err) {
+                    validationErrors = err.responseJSON.errors
+                    content = ''
+
+                    for(const failingField in validationErrors) {
+                        var messages = validationErrors[failingField]
+                        for (const msg of messages) {
+                            content += `<li>${msg}</li>`
+                          }
+                      }
+                      displayModal('Creation failed', `<ul>${content}</ul>`)
+                  }
+              })
+          })
+        })
+      </script>
 </x-layout>
 
