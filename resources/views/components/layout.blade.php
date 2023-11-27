@@ -10,9 +10,8 @@
     <title>Flight Planner</title>
 </head>
 
-<x-navbar />
-
 <body>
+    <x-navbar/>
     <img class="w-full h-96 object-cover" src="images/travel-plane.jpg" alt="Ready for your next trip?">
 
     {{ $slot }}
