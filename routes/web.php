@@ -16,3 +16,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('cities', [CityController::class, 'index']);
+Route::post('cities/create', [CityController::class, 'store']);
