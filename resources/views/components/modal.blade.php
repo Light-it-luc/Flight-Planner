@@ -6,12 +6,12 @@
         </div>
 
         <!-- Modal Body -->
-        <div class="p-4 py-4 mx-4 border-b">
-            <p modal-content></p>
+        <div modal-content class="p-4 py-4 mx-4 border-b">
+            {{ $slot }}
         </div>
 
         <!-- Modal Footer -->
-        <div class="px-4 py-2 flex justify-end">
+        <div modal-footer class="px-4 py-2 flex justify-end">
             <button close-modal-btn
                     class="bg-gray-600 hover:bg-gray-400 text-white font-semibold
                            py-2 px-4 text-white rounded-xl w-1/4"
