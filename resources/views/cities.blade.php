@@ -77,7 +77,7 @@
 
     <script>
         function displayModal(id, title, body, footer='') {
-            var modal = $(`#${id}`)[0]
+            const modal = $(`#${id}`)[0]
 
             $(`#${id} h2[modal-title]`).text(title)
             $(`#${id} div[modal-content]`).html(body)
@@ -86,13 +86,37 @@
         }
 
         function closeModal(id) {
-            var modal = $(`#${id}`)[0]
-            var closeBtn = $(`#${id} div button[close-modal-btn]`)
+            const modal = $(`#${id}`)[0]
+            const closeBtn = $(`#${id} div button[close-modal-btn]`)
 
             $(`#${id} div[modal-title]`).text('')
             $(`#${id} div[modal-content]`).html('')
             $(`#${id} div[modal-footer]`).html(closeBtn)
             modal.close()
+        }
+
+        function getCellsInRow(row) {
+            const cells = $(row).children('td')
+
+            const id = $(cells[0])
+            const name = $(cells[1])
+            const country = $(cells[2])
+
+            return [id, name, country]
+        }
+
+        function wrapInTag(tag, text) {
+            return `<${tag}>${text}</${tag}>`
+        }
+
+        function parseErrorMessages(error) {
+          const validationErrors = error.responseJSON.errors
+          let content = ''
+
+          messages = Object.values(validationErrors).flat()
+          messages.map(err => content += wrapInTag('li', err))
+
+          return wrapInTag('ul', content)
         }
 
         $(document).ready(function () {
@@ -107,7 +131,7 @@
           $('#warning-modal').on('click', '[close-modal-btn]', () => closeModal('warning-modal'))
 
           $('table').on('click', 'button[create-button]', function() {
-              let city = {
+              const city = {
                   name: $('input[name="name"]').val().trim(),
                   country: $('input[name="country"]').val().trim()
               }
@@ -142,33 +166,24 @@
                       $('input[name="country"]').val('')
                   },
                   error: function (err) {
-                    const validationErrors = err.responseJSON.errors
-                    let content = ''
-
-                    for(const failingField in validationErrors) {
-                        const messages = validationErrors[failingField]
-                        content += messages.map(msg => `<li>${msg}</li>`).join('\n')
-                      }
-                      displayModal('warning-modal', 'Creation failed', `<ul>${content}</ul>`)
+                    const content = parseErrorMessages(err)
+                    displayModal('warning-modal', 'Creation failed', content)
                   }
               })
           })
 
           $('table').on('click', 'button.edit-btn', function () {
-              var currentRow = $(this).closest('tr')
-              var cells = $(currentRow).children('td')
+              const [id, name, country] = getCellsInRow($(this).closest('tr'))
+                .map(cell => $(cell).text())
 
-              var id = $(cells[0]).text()
-              var name = $(cells[1]).text()
-              var country = $(cells[2]).text()
-
-              var content = `
+              const content = `
                 <div class="flex flex-column">
                     <div>
                         <div class="my-2">
+                            <input type="hidden" name="_id" value="${id}">
                             <input
                                 type="text"
-                                name="name"
+                                name="edit-name"
                                 value="${name}"
                                 required
                                 class="p-1 text-center border border-gray-300 text-black
@@ -177,7 +192,7 @@
                         <div class="my-2">
                             <input
                                 type="text"
-                                name="country"
+                                name="edit-country"
                                 value="${country}"
                                 required
                                 class="p-1 text-center border border-gray-300 text-black
@@ -186,69 +201,57 @@
                     </div>
                 </div>
               `
-              var submitBtn = `
-                <button modal-submit-edit-btn city-id="${id}"
+              const submitBtn = `
+                <button modal-submit-edit-btn
                     class="bg-indigo-500 hover:bg-indigo-300 text-white
                     font-semibold py-2 px-4 text-white rounded-xl mx-2"
                     >Update</button>
               `
 
-
               displayModal('edit-modal', 'Edit City', content, submitBtn)
           })
 
           $('dialog#edit-modal').on('click', '[modal-submit-edit-btn]', function() {
-            var cityId = $(this).attr('city-id')
-            var name = $(this).closest('#edit-modal').find('input[name="name"]').val()
-            var country = $(this).closest('#edit-modal').find('input[name="country"]').val()
+            const modal = $(this).closest('#edit-modal')
 
-            var updateCity = {
+            const id = $(modal).find('input[name="_id"]').val()
+            const name = $(modal).find('input[name="edit-name"]').val()
+            const country = $(modal).find('input[name="edit-country"]').val()
+
+            const updateCity = {
                 name: name.trim(),
                 country: country.trim()
             }
 
             $.ajax({
                 type: 'PATCH',
-                url: 'http://localhost:80/cities/' + cityId,
+                url: '/cities/' + id,
                 data: updateCity,
                 dataType: 'json',
                 success: function(data) {
-                    var updateRow = $(`tr[city-id="${data.id}"]`)
-                    var cells = updateRow.children()
-                    $(cells[1]).text(data.name)
-                    $(cells[2]).text(data.country)
+                    const [_, name, country] = getCellsInRow($(`tr[city-id=${data.id}]`))
+                    $(name).text(data.name)
+                    $(country).text(data.country)
                     closeModal('edit-modal')
                 },
                 error: function (err) {
-                    validationErrors = err.responseJSON.errors
-                    content = ''
-
-                    for(const failingField in validationErrors) {
-                        var messages = validationErrors[failingField]
-                        for (const msg of messages) {
-                            content += `${msg}\n`
-                          }
-                      }
+                    content = parseErrorMessages(err)
                     displayModal('warning-modal', 'Edit Failed', content)
                 }
             })
           })
 
           $('table').on('click', 'button.del-btn', function () {
-            var currentRow = $(this).closest('tr')
-            var cells = $(currentRow).children('td')
-            var cityId = $(cells[0]).text()
+            const [id, name, country] = getCellsInRow($(this).closest('tr'))
+                .map(cell => $(cell).text())
 
-            var updateRow = $(`tr[city-id="${cityId}"]`)
-            var cells = updateRow.children()
-
-            var name = $(cells[1]).text()
-            var country = $(cells[2]).text()
-
-            var content = `Are you sure you want to delete ${name} (${country}) from the database?`
-            var confirmBtn = `
-                <button modal-submit-del-btn city-id="${cityId}"
-                    class="bg-indigo-500 hover:bg-indigo-300 text-white
+            const content = `
+                <p>Are you sure you want to delete ${name} (${country}) from the database?</p>
+                <input type="hidden" name="_id" value="${id}">
+            `
+            const confirmBtn = `
+                <button modal-submit-del-btn
+                    class="bg-red-500 hover:bg-indigo-300 text-white
                     font-semibold py-2 px-4 text-white rounded-xl mx-2"
                     >Confirm</button>
               `
@@ -256,27 +259,19 @@
           })
 
           $('dialog#warning-modal').on('click', '[modal-submit-del-btn]', function() {
-            var cityId = $(this).attr('city-id')
+            const modal = $(this).closest('#warning-modal')
+            const id = $(modal).find('input[name="_id"]').val()
 
             $.ajax({
                 type: 'DELETE',
-                url: 'http://localhost:80/cities/' + cityId,
+                url: '/cities/' + id,
                 dataType: 'json',
                 success: function(data) {
                     $(`tr[city-id="${data}"]`).remove()
                     closeModal('warning-modal')
                 },
                 error: function (err) {
-                    validationErrors = err.responseJSON.errors
-                    content = ''
-
-                    for(const failingField in validationErrors) {
-                        var messages = validationErrors[failingField]
-                        for (const msg of messages) {
-                            content += `${msg}\n`
-                          }
-                      }
-
+                    const content = parseErrorMessages(err)
                     displayModal('warning-modal', 'Edit Failed', content)
                 }
             })
