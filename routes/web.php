@@ -15,4 +15,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('cities', [CityController::class, 'index']);
+Route::group([
+    'prefix' => 'cities',
+    'controller' => CityController::class
+], function () {
+    Route::get('/', 'index');
+    Route::post('/', 'store');
+});
