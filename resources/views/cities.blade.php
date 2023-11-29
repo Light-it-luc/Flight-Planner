@@ -181,21 +181,29 @@
                     <div>
                         <div class="my-2">
                             <input type="hidden" name="_id" value="${id}">
+                            <label class="block mb-1 uppercase font-bold text-sm text-gray-700"
+                                   for="edit-name">
+                                   Name
+                            </label>
                             <input
                                 type="text"
                                 name="edit-name"
                                 value="${name}"
                                 required
-                                class="p-1 text-center border border-gray-300 text-black
+                                class="mb-2 p-1 text-center border border-gray-300 text-black
                                 placeholder-gray-300 rounded-lg">
                         </div>
                         <div class="my-2">
+                            <label class="block mb-1 uppercase font-bold text-sm text-gray-700"
+                                   for="edit-country">
+                                Country
+                            </label>
                             <input
                                 type="text"
                                 name="edit-country"
                                 value="${country}"
                                 required
-                                class="p-1 text-center border border-gray-300 text-black
+                                class="mb-2 p-1 text-center border border-gray-300 text-black
                                 placeholder-gray-300 rounded-lg">
                         </div>
                     </div>
