@@ -266,8 +266,8 @@
                 type: 'DELETE',
                 url: '/cities/' + id,
                 dataType: 'json',
-                success: function(data) {
-                    $(`tr[city-id="${data}"]`).remove()
+                success: function() {
+                    $(`tr[city-id="${id}"]`).remove()
                     closeModal('warning-modal')
                 },
                 error: function (err) {

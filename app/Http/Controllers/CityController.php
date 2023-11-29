@@ -33,10 +33,6 @@ class CityController extends Controller
 
     public function destroy(City $city) {
 
-        $id = $city->id;
-
-        $city->delete();
-
-        return $id;
+        return $city->delete();
     }
 }
