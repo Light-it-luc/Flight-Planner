@@ -102,7 +102,7 @@
 
               $.ajax({
                   type: 'POST',
-                  url: '/cities/create',
+                  url: '/cities',
                   data: city,
                   dataType: 'json',
                   headers: {
