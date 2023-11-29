@@ -28,11 +28,8 @@ class StoreCityRequest extends FormRequest
             'name' => ['required', 'max:255'],
             'country' => [
                 'required', 'max:255',
-                Rule::unique('cities', 'country')
-                    ->where(function ($query) use ($request) {
-                        return $query->where('name', $request->name);
-                    })
-                ]
+                Rule::unique('cities', 'country')->where('name', $this->input('name'))
+            ]
         ];
     }
 
