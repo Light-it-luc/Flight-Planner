@@ -22,4 +22,5 @@ Route::group([
     Route::get('/', 'index');
     Route::post('/', 'store');
     Route::patch('/{city}', 'update');
+    Route::delete('/{city}', 'destroy');
 });

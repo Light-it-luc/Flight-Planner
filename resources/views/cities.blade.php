@@ -1,6 +1,7 @@
 <x-layout :title="'Cities'">
 
-    <x-modal></x-modal>
+    <x-modal :id="'edit-modal'" class="bg-indigo-500"></x-modal>
+    <x-modal :id="'warning-modal'" class="bg-red-500"></x-modal>
 
     <div class="max-w-6xl m-auto mt-8">
         <div class="overflow-x-auto relative">
@@ -75,71 +76,38 @@
     </div>
 
     <script>
-        function displayModal(title, body, footer='') {
-            var modal = document.getElementById('modal')
+        function displayModal(id, title, body, footer='') {
+            var modal = $(`#${id}`)[0]
 
-            $('[modal-title]').text(title)
-            $('[modal-content]').html(body)
-            $('[close-modal-btn]').before(footer)
+            $(`#${id} h2[modal-title]`).text(title)
+            $(`#${id} div[modal-content]`).html(body)
+            $(`#${id} div button[close-modal-btn]`).before(footer)
             modal.showModal()
         }
 
-        function closeModal() {
-            var modal = document.getElementById('modal')
-            var closeBtn = $('[close-modal-btn]')
+        function closeModal(id) {
+            var modal = $(`#${id}`)[0]
+            var closeBtn = $(`#${id} div button[close-modal-btn]`)
 
-            $('[modal-title]').text('')
-            $('[modal-content]').html('')
-            $('[modal-footer]').html(closeBtn)
+            $(`#${id} div[modal-title]`).text('')
+            $(`#${id} div[modal-content]`).html('')
+            $(`#${id} div[modal-footer]`).html(closeBtn)
             modal.close()
         }
 
         $(document).ready(function () {
 
-          $('dialog').on('click', '[close-modal-btn]', closeModal)
-
-          $('dialog').on('click', '[modal-submit-btn]', function(e) {
-            var cityId = $(e.target).attr('city-id')
-            var name = $(e.target).closest('#modal').find('input[name="name"]').val()
-            var country = $(e.target).closest('#modal').find('input[name="country"]').val()
-
-            var updateCity = {
-                name: name.trim(),
-                country: country.trim()
+          $.ajaxSetup({
+            headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
-
-            $.ajax({
-                type: 'PATCH',
-                url: 'http://localhost:80/cities/' + cityId,
-                data: updateCity,
-                dataType: 'json',
-                headers: {
-                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(data) {
-                    var updateRow = $(`tr[city-id="${data.id}"]`)
-                    var cells = updateRow.children()
-                    $(cells[1]).text(data.name)
-                    $(cells[2]).text(data.country)
-                    closeModal()
-                },
-                error: function (err) {
-                    validationErrors = err.responseJSON.errors
-                    content = ''
-
-                    for(const failingField in validationErrors) {
-                        var messages = validationErrors[failingField]
-                        for (const msg of messages) {
-                            content += `${msg}\n`
-                          }
-                      }
-                    alert(content)
-                }
-            })
           })
 
+          $('#edit-modal').on('click', '[close-modal-btn]', () => closeModal('edit-modal'))
+          $('#warning-modal').on('click', '[close-modal-btn]', () => closeModal('warning-modal'))
+
           $('table').on('click', 'button[create-button]', function() {
-              var city = {
+              let city = {
                   name: $('input[name="name"]').val().trim(),
                   country: $('input[name="country"]').val().trim()
               }
@@ -149,9 +117,6 @@
                   url: '/cities',
                   data: city,
                   dataType: 'json',
-                  headers: {
-                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                  },
                   success: function(data) {
                       const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
 
@@ -184,7 +149,7 @@
                         const messages = validationErrors[failingField]
                         content += messages.map(msg => `<li>${msg}</li>`).join('\n')
                       }
-                      displayModal('Creation failed', `<ul>${content}</ul>`)
+                      displayModal('warning-modal', 'Creation failed', `<ul>${content}</ul>`)
                   }
               })
           })
@@ -222,16 +187,100 @@
                 </div>
               `
               var submitBtn = `
-                <button modal-submit-btn city-id="${id}"
+                <button modal-submit-edit-btn city-id="${id}"
                     class="bg-indigo-500 hover:bg-indigo-300 text-white
                     font-semibold py-2 px-4 text-white rounded-xl mx-2"
-                    >Submit</button>
+                    >Update</button>
               `
 
 
-              displayModal('Edit City', content, submitBtn)
+              displayModal('edit-modal', 'Edit City', content, submitBtn)
           })
 
+          $('dialog#edit-modal').on('click', '[modal-submit-edit-btn]', function() {
+            var cityId = $(this).attr('city-id')
+            var name = $(this).closest('#edit-modal').find('input[name="name"]').val()
+            var country = $(this).closest('#edit-modal').find('input[name="country"]').val()
+
+            var updateCity = {
+                name: name.trim(),
+                country: country.trim()
+            }
+
+            $.ajax({
+                type: 'PATCH',
+                url: 'http://localhost:80/cities/' + cityId,
+                data: updateCity,
+                dataType: 'json',
+                success: function(data) {
+                    var updateRow = $(`tr[city-id="${data.id}"]`)
+                    var cells = updateRow.children()
+                    $(cells[1]).text(data.name)
+                    $(cells[2]).text(data.country)
+                    closeModal('edit-modal')
+                },
+                error: function (err) {
+                    validationErrors = err.responseJSON.errors
+                    content = ''
+
+                    for(const failingField in validationErrors) {
+                        var messages = validationErrors[failingField]
+                        for (const msg of messages) {
+                            content += `${msg}\n`
+                          }
+                      }
+                    displayModal('warning-modal', 'Edit Failed', content)
+                }
+            })
+          })
+
+          $('table').on('click', 'button.del-btn', function () {
+            var currentRow = $(this).closest('tr')
+            var cells = $(currentRow).children('td')
+            var cityId = $(cells[0]).text()
+
+            var updateRow = $(`tr[city-id="${cityId}"]`)
+            var cells = updateRow.children()
+
+            var name = $(cells[1]).text()
+            var country = $(cells[2]).text()
+
+            var content = `Are you sure you want to delete ${name} (${country}) from the database?`
+            var confirmBtn = `
+                <button modal-submit-del-btn city-id="${cityId}"
+                    class="bg-indigo-500 hover:bg-indigo-300 text-white
+                    font-semibold py-2 px-4 text-white rounded-xl mx-2"
+                    >Confirm</button>
+              `
+            displayModal('warning-modal', 'Warning', content, confirmBtn)
+          })
+
+          $('dialog#warning-modal').on('click', '[modal-submit-del-btn]', function() {
+            var cityId = $(this).attr('city-id')
+
+            $.ajax({
+                type: 'DELETE',
+                url: 'http://localhost:80/cities/' + cityId,
+                dataType: 'json',
+                success: function(data) {
+                    $(`tr[city-id="${data}"]`).remove()
+                    closeModal('warning-modal')
+                },
+                error: function (err) {
+                    validationErrors = err.responseJSON.errors
+                    content = ''
+
+                    for(const failingField in validationErrors) {
+                        var messages = validationErrors[failingField]
+                        for (const msg of messages) {
+                            content += `${msg}\n`
+                          }
+                      }
+
+                    displayModal('warning-modal', 'Edit Failed', content)
+                }
+            })
+          })
         })
       </script>
 </x-layout>

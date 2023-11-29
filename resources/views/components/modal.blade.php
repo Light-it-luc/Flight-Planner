@@ -1,7 +1,9 @@
-<dialog id="modal" class="w-1/4 border rounded-lg">
-    <div class="">
+@props(['id'])
+
+<dialog id="{{ $id }}" class="w-1/4 border rounded-lg">
+    <div>
         <!-- Modal Header -->
-        <div class="bg-indigo-500 text-white px-4 py-2 flex justify-between rounded-lg">
+        <div {{ $attributes->merge(['class' => 'text-white px-4 py-2 flex justify-between rounded-lg']) }}>
             <h2 modal-title class="text-lg font-semibold"></h2>
         </div>
 
