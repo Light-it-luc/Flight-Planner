@@ -76,40 +76,40 @@
     </div>
 
     <script>
+        function displayModal(title, content) {
+            const modal = $('#modal')[0]
+
+            $('[modal-title]').text(title)
+            $('[modal-content]').html(content)
+
+            modal.showModal()
+        }
+
+        function closeModal() {
+            const modal = $('#modal')[0]
+            modal.close()
+        }
+
         $(document).ready(function () {
-
-          function displayModal(title, content) {
-              var modal = document.getElementById('modal')
-
-              $('[modal-title]').text(title)
-              $('[modal-content]').html(content)
-
-              modal.showModal()
-          }
-
-          function closeModal() {
-              var modal = document.getElementById('modal')
-              modal.close()
-          }
 
           $('[close-modal-btn]').click(closeModal)
 
           $('button[create-button]').click(function() {
-              var city = {
+              const city = {
                   name: $('input[name="name"]').val().trim(),
                   country: $('input[name="country"]').val().trim()
               }
 
               $.ajax({
                   type: 'POST',
-                  url: 'http://localhost:80/cities/create',
+                  url: '/cities/create',
                   data: city,
                   dataType: 'json',
                   headers: {
                       'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                   },
                   success: function(data) {
-                      var btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
+                      const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
 
                       $('tr[create-row]').after(
                           `<tr class="bg-white border-b border-gray-100">
@@ -133,14 +133,12 @@
                       $('input[name="country"]').val('')
                   },
                   error: function (err) {
-                    validationErrors = err.responseJSON.errors
-                    content = ''
+                    const validationErrors = err.responseJSON.errors
+                    let content = ''
 
                     for(const failingField in validationErrors) {
-                        var messages = validationErrors[failingField]
-                        for (const msg of messages) {
-                            content += `<li>${msg}</li>`
-                          }
+                        const messages = validationErrors[failingField]
+                        content += messages.map(msg => `<li>${msg}</li>`).join('\n')
                       }
                       displayModal('Creation failed', `<ul>${content}</ul>`)
                   }
