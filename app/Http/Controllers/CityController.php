@@ -21,4 +21,18 @@ class CityController extends Controller
 
         return City::create($attributes);
     }
+
+    public function update(StoreCityRequest $request, City $city) {
+
+        $attributes = $request->validated();
+
+        $city->update($attributes);
+
+        return $city;
+    }
+
+    public function destroy(City $city) {
+
+        return $city->delete();
+    }
 }
