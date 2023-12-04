@@ -33,4 +33,5 @@ Route::group([
     Route::get('/', 'index');
     Route::post('/', 'store');
     Route::delete('/{airline}', 'destroy');
+    Route::patch('/{airline}', 'update');
 });

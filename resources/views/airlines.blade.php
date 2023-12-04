@@ -232,11 +232,76 @@
             displayModal("Warning", warningMessage, deleteBtn, "bg-red-500")
         }
 
+        async function editAirline(target) {
+            const id = document.querySelector('input[name="_id"]').value
+            const newName = document.querySelector('input[name="edit-name"]')
+            const newDesc = document.querySelector('input[name="edit-description"]')
+
+            const response = await fetch(`/airlines/${id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({
+                    name: newName.value,
+                    description: newDesc.value
+                })
+            })
+
+            if (! response.ok) {
+                const errors = (await response.json()).errors
+
+                const para = document.createElement("p")
+                para.setAttribute("class", "text-red-500 text-xs mb-2")
+
+                if (Object.hasOwn(errors, 'name')) {
+                    para.textContent = errors.name.join("")
+                    newName.after(para)
+                }
+                if (Object.hasOwn(errors, 'description')) {
+                    para.textContent = errors.description.join("")
+                    newDesc.after(para)
+                }
+                return
+            }
+
+            const row = document.querySelector(`tr[airline-id="${id}"]`)
+            row.children[1].textContent = newName.value
+            row.children[2].textContent = newDesc.value
+
+            return closeModal()
+        }
+
+        function handleEditButton(target) {
+            const id = target.closest("tr").firstElementChild.textContent
+            const name = target.closest("tr").children[1].textContent
+            const description = target.closest("tr").children[2].textContent
+
+            const inputs = `
+            <input type="hidden" name="_id" value="${id}">
+            <input type="text" name="edit-name" value="${name}"
+            class="mb-2 p-1 text-center border border-gray-300 text-black placeholder-gray-300 rounded-lg">
+            <input type="text" name="edit-description" value="${description}"
+            class="mb-2 p-1 text-center border border-gray-300 text-black placeholder-gray-300 rounded-lg">
+            `
+
+            const updateBtn = document.createElement("button")
+            updateBtn.setAttribute("id", "modal-edit-btn")
+            updateBtn.setAttribute(
+                "class",
+                "bg-indigo-500 hover:bg-indigo-300 text-white font-semibold y-2 px-4 text-white rounded-xl mx-2"
+            )
+            updateBtn.textContent = "Update"
+
+            return displayModal("Edit Airline", inputs, updateBtn)
+        }
+
         const table = document.querySelector('table')
         table.addEventListener("click", function (event) {
             const target = event.target
             if (target.classList.contains("edit-btn")) {
-                // return handleEditButton(target)
+                return handleEditButton(target)
             }
             if (target.classList.contains("del-btn")) {
                 return handleDeleteButton(target)
@@ -256,6 +321,10 @@
             if (targetId === "modal-delete-btn") {
                 const airlineId = document.querySelector(`dialog input[name="_id"]`).value
                 return deleteAirline(airlineId)
+            }
+
+            if (targetId === "modal-edit-btn") {
+                return editAirline(event.target)
             }
         })
     </script>
