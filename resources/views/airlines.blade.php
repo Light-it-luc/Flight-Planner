@@ -107,39 +107,9 @@
             return `<ul>${content}</ul>`
         }
 
-        async function createAirline() {
-            const name = document.querySelector('input[name="name"]')
-            const description = document.querySelector('input[name="description"]')
-
-            const newAirline = {
-                name: name.value.trim(),
-                description: description.value.trim()
-            }
-
-            const response = await fetch("/airlines", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify(newAirline)
-            })
-
-            if (! response.ok) {
-                const errors = await response.json()
-                const content = parseErrors(errors)
-                return displayModal("Creation Failed", content, "", "bg-red-500")
-            }
-
-            name.value = ""
-            description.value = ""
-
-            const storedAirline = await response.json()
-            return insertAirlineRow(storedAirline)
-        }
-
         function insertAirlineRow(airline) {
             let newRow = document.createElement("tr")
+            newRow.setAttribute("airline-id", airline.id)
             const createRow = document.querySelector("tr[create-row]")
 
             newRow.setAttribute("class", createRow.getAttribute("class"))
@@ -148,7 +118,6 @@
 
             targetProperties.map((prop) => newRow.appendChild(createCell(airline[prop])))
 
-            // Registered flights
             newRow.appendChild(createCell(0))
 
             newRow.appendChild(createEditDeleteBtns(airline.id))
@@ -195,11 +164,100 @@
             return cell
         }
 
+        async function createAirline() {
+            const name = document.querySelector('input[name="name"]')
+            const description = document.querySelector('input[name="description"]')
+
+            const newAirline = {
+                name: name.value.trim(),
+                description: description.value.trim()
+            }
+
+            const response = await fetch("/airlines", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(newAirline)
+            })
+
+            if (! response.ok) {
+                const errors = await response.json()
+                const content = parseErrors(errors)
+                return displayModal("Creation Failed", content, "", "bg-red-500")
+            }
+
+            name.value = ""
+            description.value = ""
+
+            const storedAirline = await response.json()
+            return insertAirlineRow(storedAirline)
+        }
+
+        async function deleteAirline(id) {
+            const response = await fetch(`/airlines/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+
+            if (! response.ok) {
+                return displayModal(
+                    "Warning", "An error occurred while trying to delete", "", "bg-red-500"
+                )
+            }
+
+            document.querySelector(`tr[airline-id="${id}"]`).remove()
+            closeModal()
+        }
+
+        function handleDeleteButton(target) {
+            const id = target.closest("tr").firstElementChild.textContent
+            const name = target.closest("tr").children[1].textContent
+            const deleteBtn = document.createElement("button")
+            deleteBtn.textContent = "Delete"
+            deleteBtn.setAttribute(
+                "class",
+                "bg-red-500 hover:bg-indigo-300 text-white font-semibold py-2 px-4 text-white rounded-xl mx-2"
+            )
+            deleteBtn.setAttribute("id", "modal-delete-btn")
+
+            const warningMessage = `
+            <input type="hidden" name="_id" value="${id}">
+            <p>Are you sure you want to delete ${name}?</p>
+            `
+
+            displayModal("Warning", warningMessage, deleteBtn, "bg-red-500")
+        }
+
+        const table = document.querySelector('table')
+        table.addEventListener("click", function (event) {
+            const target = event.target
+            if (target.classList.contains("edit-btn")) {
+                // return handleEditButton(target)
+            }
+            if (target.classList.contains("del-btn")) {
+                return handleDeleteButton(target)
+            }
+        })
+
         const createBtn = document.querySelector('[create-button]')
         createBtn.addEventListener("click", createAirline)
 
         const closeModalBtn = document.querySelector("[close-modal-btn]")
         closeModalBtn.addEventListener("click", closeModal)
+
+        const modal = document.querySelector("#modal")
+        modal.addEventListener("click", function (event) {
+            const targetId = event.target.getAttribute("id")
+
+            if (targetId === "modal-delete-btn") {
+                const airlineId = document.querySelector(`dialog input[name="_id"]`).value
+                return deleteAirline(airlineId)
+            }
+        })
     </script>
 </x-layout>
 

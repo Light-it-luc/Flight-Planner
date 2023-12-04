@@ -34,4 +34,9 @@ class AirlineController extends Controller
 
         return Airline::create($attributes);
     }
+
+    public function destroy(Airline $airline) {
+
+        return $airline->delete();
+    }
 }
