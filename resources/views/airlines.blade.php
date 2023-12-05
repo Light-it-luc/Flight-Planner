@@ -1,51 +1,18 @@
-<x-layout :title="'Airlines'">
+@php
+    $title = 'Airlines';
+    $columnTitles = ['ID', 'Name', 'Description', 'Flights'];
+@endphp
 
-    <x-modal :id="'modal'"></x-modal>
+<x-layout :title="$title">
+
+    <x-modal></x-modal>
 
     <div class="max-w-6xl m-auto mt-8">
         <div class="overflow-x-auto relative">
-        <table class="w-full text-sm text-center">
-            <caption class="hidden">Airlines</caption>
-            <thead class="text-xs text-gray-800 uppercase border-b border-gray-300">
-            <tr>
-                <th scope="col" class="py-3 px-6">ID</th>
-                <th scope="col" class="py-3 px-6">Airline Name</th>
-                <th scope="col" class="py-3 px-6">Description</th>
-                <th scope="col" class="py-3 px-6">Flights</th>
-                <th scope="col" class="py-3 px-6"></th>
-            </tr>
-            </thead>
-            <tbody>
-                <tr create-row class="bg-white border-b border-gray-100">
-                    <td class="py-4 px-6"></td>
-                    <td class="py-4 px-6">
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder="Name"
-                            required
-                            class="p-1 text-center border border-gray-300 text-black
-                            placeholder-gray-300 rounded-lg">
-                    </td>
-                    <td class="py-4 px-6">
-                        <input
-                            type="text"
-                            name="description"
-                            placeholder="Description"
-                            required
-                            class="p-1 text-center border border-gray-300 text-black
-                            placeholder-gray-300 rounded-lg">
-                    </td>
-                    <td class="py-4 px-6"></td>
-                    <td class="py-4 px-6">
-                        <x-button
-                            type="button"
-                            class="dark:bg-gray-500 hover:bg-gray-400"
-                            create-button>
-                            Create
-                        </x-button>
-                    </td>
-                </tr>
+            <x-table
+            :tableName="$title" :columnTitles="$columnTitles"
+            :firstInput="'name'" :secondInput="'description'">
+
                 @foreach($airlines as $airline)
                     <tr airline-id="{{ $airline->id }}" class="bg-white border-b border-gray-100">
                         <td class="py-4 px-6">{{ $airline->id }}</td>
@@ -62,8 +29,8 @@
                         </td>
                     </tr>
                 @endforeach
-            </tbody>
-        </table>
+
+            </x-table>
         </div>
     </div>
 
@@ -75,25 +42,26 @@
         function displayModal(title, content, footer="", color="bg-indigo-500") {
             const modal = document.querySelector("#modal")
 
-            let titleContainer = document.querySelector("[modal-title]").closest("div")
+            let titleContainer = document.querySelector("#modal-title").closest("div")
+            titleContainer.classList.remove("bg-indigo-500", "bg-red-500");
             titleContainer.classList.add(color)
 
-            document.querySelector("[modal-title]").textContent = title
-            document.querySelector("[modal-content]").innerHTML = content
-            document.querySelector("[modal-footer]").append(footer)
+            document.querySelector("#modal-title").textContent = title
+            document.querySelector("#modal-content").innerHTML = content
+            document.querySelector("#modal-footer").append(footer)
 
             modal.showModal()
         }
 
         function closeModal() {
             const modal = document.querySelector("#modal")
-            const closeBtn = document.querySelector("[close-modal-btn]")
+            const closeBtn = document.querySelector("#modal-close-btn")
 
-            document.querySelector("[modal-title]").textContent = ""
-            document.querySelector("[modal-content]").textContent = ""
-            document.querySelector("[modal-footer]").innerHTML = ""
+            document.querySelector("#modal-title").textContent = ""
+            document.querySelector("#modal-content").textContent = ""
+            document.querySelector("#modal-footer").innerHTML = ""
 
-            document.querySelector("[modal-footer]").appendChild(closeBtn)
+            document.querySelector("#modal-footer").appendChild(closeBtn)
             modal.close()
         }
 
@@ -110,7 +78,7 @@
         function insertAirlineRow(airline) {
             let newRow = document.createElement("tr")
             newRow.setAttribute("airline-id", airline.id)
-            const createRow = document.querySelector("tr[create-row]")
+            const createRow = document.querySelector("tr#create-row")
 
             newRow.setAttribute("class", createRow.getAttribute("class"))
 
@@ -252,15 +220,18 @@
             if (! response.ok) {
                 const errors = (await response.json()).errors
 
+                let previousErrors = document.querySelectorAll(".modal-edit-error")
+                previousErrors.forEach(node => node.parentNode.removeChild(node))
+
                 const para = document.createElement("p")
-                para.setAttribute("class", "text-red-500 text-xs mb-2")
+                para.setAttribute("class", "modal-edit-error text-red-500 text-xs mb-2")
 
                 if (Object.hasOwn(errors, 'name')) {
-                    para.textContent = errors.name.join("")
+                    para.textContent = errors.name.join(" ")
                     newName.after(para)
                 }
                 if (Object.hasOwn(errors, 'description')) {
-                    para.textContent = errors.description.join("")
+                    para.textContent = errors.description.join(" ")
                     newDesc.after(para)
                 }
                 return
@@ -280,8 +251,14 @@
 
             const inputs = `
             <input type="hidden" name="_id" value="${id}">
+            <label class="block mb-1 uppercase font-bold text-sm text-gray-700" for="edit-name">
+                Name
+            </label>
             <input type="text" name="edit-name" value="${name}"
             class="mb-2 p-1 text-center border border-gray-300 text-black placeholder-gray-300 rounded-lg">
+            <label class="block mb-1 uppercase font-bold text-sm text-gray-700" for="edit-description">
+                Description
+            </label>
             <input type="text" name="edit-description" value="${description}"
             class="mb-2 p-1 text-center border border-gray-300 text-black placeholder-gray-300 rounded-lg">
             `
@@ -308,10 +285,10 @@
             }
         })
 
-        const createBtn = document.querySelector('[create-button]')
+        const createBtn = document.querySelector('#create-button')
         createBtn.addEventListener("click", createAirline)
 
-        const closeModalBtn = document.querySelector("[close-modal-btn]")
+        const closeModalBtn = document.querySelector("#modal-close-btn")
         closeModalBtn.addEventListener("click", closeModal)
 
         const modal = document.querySelector("#modal")

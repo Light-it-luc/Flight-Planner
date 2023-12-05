@@ -11,7 +11,7 @@
 
             <div class="flex items-center">
                 <x-navlink href="cities">Cities</x-navlink>
-                <x-navlink href="airlies">Airlines</x-navlink>
+                <x-navlink href="airlines">Airlines</x-navlink>
                 <x-navlink href="flights">Flights</x-navlink>
             </div>
 
