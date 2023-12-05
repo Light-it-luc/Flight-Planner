@@ -144,6 +144,7 @@
             const response = await fetch("/airlines", {
                 method: "POST",
                 headers: {
+                    "Accept": "application/json",
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
                 },
@@ -208,6 +209,7 @@
             const response = await fetch(`/airlines/${id}`, {
                 method: "PATCH",
                 headers: {
+                    "Accept": "application/json",
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
                 },

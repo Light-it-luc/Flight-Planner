@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAirlineRequest;
+use App\Http\Requests\UpdateAirlineRequest;
 use App\Models\Airline;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -18,36 +20,16 @@ class AirlineController extends Controller
         ]);
     }
 
-    public function store(Request $request) {
+    public function store(StoreAirlineRequest $request) {
 
-        $validator = Validator::make($request->all(), [
-            'name' => ['required', 'max:255', 'unique:airlines'],
-            'description' => ['required']
-        ]);
-
-        if ($validator->fails()) {
-            return response()
-                ->json(['errors' => $validator->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        $attributes = $validator->validated();
+        $attributes = $request->validated();
 
         return Airline::create($attributes);
     }
 
-    public function update(Request $request, Airline $airline) {
+    public function update(UpdateAirlineRequest $request, Airline $airline) {
 
-        $validator = Validator::make($request->all(), [
-            'name' => ['required', 'max:255', Rule::unique('airlines')->ignore($airline->id)],
-            'description' => ['required']
-        ]);
-
-        if ($validator->fails()) {
-            return response()
-                ->json(['errors' => $validator->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        $attributes = $validator->validated();
+        $attributes = $request->validated();
 
         return $airline->update($attributes);
     }
