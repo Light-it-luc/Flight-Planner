@@ -1,9 +1,4 @@
-@php
-    $title = 'Cities';
-    $columnTitles = ['ID', 'Name', 'Country', 'Incoming Flights', 'Outgoing Flights'];
-@endphp
-
-<x-layout :title="$title">
+<x-layout :title="'Cities'">
 
     <x-modal></x-modal>
 
@@ -11,7 +6,7 @@
         <div class="overflow-x-auto relative">
 
         <x-table
-        :tableName="$title" :columnTitles="$columnTitles"
+        :tableName="'Cities'" :columnTitles="['ID', 'Name', 'Country', 'Incoming Flights', 'Outgoing Flights']"
         :firstInput="'name'" :secondInput="'country'">
 
             @foreach($cities as $city)

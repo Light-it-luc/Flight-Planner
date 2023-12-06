@@ -1,16 +1,11 @@
-@php
-    $title = 'Airlines';
-    $columnTitles = ['ID', 'Name', 'Description', 'Flights'];
-@endphp
-
-<x-layout :title="$title">
+<x-layout :title="'Airlines'">
 
     <x-modal></x-modal>
 
     <div class="max-w-6xl m-auto mt-8">
         <div class="overflow-x-auto relative">
             <x-table
-            :tableName="$title" :columnTitles="$columnTitles"
+            :tableName="'Airlines'" :columnTitles="['ID', 'Name', 'Description', 'Flights']"
             :firstInput="'name'" :secondInput="'description'">
 
                 @foreach($airlines as $airline)
