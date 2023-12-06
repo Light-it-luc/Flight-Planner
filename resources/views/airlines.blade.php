@@ -60,6 +60,39 @@
             modal.close()
         }
 
+        async function makePost(url, data) {
+            return await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(data)
+            })
+        }
+
+        async function makePatch(url, data) {
+            return await fetch(url, {
+                method: "PATCH",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(data)
+            })
+        }
+
+        async function makeDelete(url) {
+            return await fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+        }
+
         function parseErrors(err) {
             const validationErrors = err.errors
             let content = ''
@@ -127,24 +160,44 @@
             return cell
         }
 
-        async function createAirline() {
-            const name = document.querySelector('input[name="name"]')
-            const description = document.querySelector('input[name="description"]')
+        function getAirlineInputValues(name, description) {
+            const inputName = document.querySelector(`input[name="${name}"]`)
+            const inputDescription = document.querySelector(`input[name="${description}"]`)
 
-            const newAirline = {
-                name: name.value.trim(),
-                description: description.value.trim()
+            const airline = {
+                name: inputName.value.trim(),
+                description: inputDescription.value.trim()
             }
 
-            const response = await fetch("/airlines", {
-                method: "POST",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify(newAirline)
-            })
+            return airline
+        }
+
+        function resetInputField(name, value="") {
+            const inputName = document.querySelector(`input[name="${name}"]`)
+            inputName.value = value
+        }
+
+        function handleErrorsInEditModal(errors) {
+            let previousErrors = document.querySelectorAll(".modal-edit-error")
+            previousErrors.forEach(node => node.parentNode.removeChild(node))
+
+            const para = document.createElement("p")
+            para.setAttribute("class", "modal-edit-error text-red-500 text-xs mb-2")
+
+            if (Object.hasOwn(errors, 'name')) {
+                para.textContent = errors.name.join(" ")
+                document.querySelector('input[name="edit-name"]').after(para)
+            }
+            if (Object.hasOwn(errors, 'description')) {
+                para.textContent = errors.description.join(" ")
+                document.querySelector('input[name="edit-description"]').after(para)
+            }
+        }
+
+        async function createAirline() {
+            const newAirline = getAirlineInputValues("name", "description")
+
+            const response = await makePost("/airlines", newAirline)
 
             if (! response.ok) {
                 const errors = await response.json()
@@ -152,20 +205,15 @@
                 return displayModal("Creation Failed", content, "", "bg-red-500")
             }
 
-            name.value = ""
-            description.value = ""
+            resetInputField("name")
+            resetInputField("description")
 
             const storedAirline = await response.json()
             return insertAirlineRow(storedAirline)
         }
 
         async function deleteAirline(id) {
-            const response = await fetch(`/airlines/${id}`, {
-                method: "DELETE",
-                headers: {
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
+            const response = await makeDelete(`/airlines/${id}`)
 
             if (! response.ok) {
                 return displayModal(
@@ -184,7 +232,7 @@
             deleteBtn.textContent = "Delete"
             deleteBtn.setAttribute(
                 "class",
-                "bg-red-500 hover:bg-indigo-300 text-white font-semibold py-2 px-4 text-white rounded-xl mx-2"
+                "bg-red-500 hover:bg-red-300 text-white font-semibold py-2 px-4 text-white rounded-xl mx-2"
             )
             deleteBtn.setAttribute("id", "modal-delete-btn")
 
@@ -198,45 +246,18 @@
 
         async function editAirline(target) {
             const id = document.querySelector('input[name="_id"]').value
-            const newName = document.querySelector('input[name="edit-name"]')
-            const newDesc = document.querySelector('input[name="edit-description"]')
+            const airline = getAirlineInputValues('edit-name', 'edit-description')
 
-            const response = await fetch(`/airlines/${id}`, {
-                method: "PATCH",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    name: newName.value,
-                    description: newDesc.value
-                })
-            })
+            const response = await makePatch(`/airlines/${id}`, airline)
 
             if (! response.ok) {
                 const errors = (await response.json()).errors
-
-                let previousErrors = document.querySelectorAll(".modal-edit-error")
-                previousErrors.forEach(node => node.parentNode.removeChild(node))
-
-                const para = document.createElement("p")
-                para.setAttribute("class", "modal-edit-error text-red-500 text-xs mb-2")
-
-                if (Object.hasOwn(errors, 'name')) {
-                    para.textContent = errors.name.join(" ")
-                    newName.after(para)
-                }
-                if (Object.hasOwn(errors, 'description')) {
-                    para.textContent = errors.description.join(" ")
-                    newDesc.after(para)
-                }
-                return
+                return handleErrorsInEditModal(errors)
             }
 
             const row = document.querySelector(`tr[airline-id="${id}"]`)
-            row.children[1].textContent = newName.value
-            row.children[2].textContent = newDesc.value
+            row.children[1].textContent = airline.name
+            row.children[2].textContent = airline.description
 
             return closeModal()
         }
