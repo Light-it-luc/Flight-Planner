@@ -21,8 +21,10 @@ class UpdateAirlineRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(Airline $airline): array
+    public function rules(): array
     {
+        $airline = $this->route('airline');
+
         return [
             'name' => [
                 'required',
