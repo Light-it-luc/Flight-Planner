@@ -8,22 +8,30 @@ use App\Models\City;
 
 class CityController extends Controller
 {
-    public function index() {
+    public function index()
+    {
+        $sortBy = request('sort_by');
+        $sortOrder = request('sort_order');
+
+        $cities = City::withCount(['flightsTo', 'flightsFrom'])
+            ->order($sortBy, $sortOrder)
+            ->filter(request(['airline']))
+            ->paginate(10);
+
         return view('cities', [
-            'cities' => City::withCount(['flightsTo', 'flightsFrom'])
-                            ->paginate(10)
+            'cities' => $cities
         ]);
     }
 
-    public function store(StoreCityRequest $request) {
-
+    public function store(StoreCityRequest $request)
+    {
         $attributes = $request->validated();
 
         return City::create($attributes);
     }
 
-    public function update(StoreCityRequest $request, City $city) {
-
+    public function update(StoreCityRequest $request, City $city)
+    {
         $attributes = $request->validated();
 
         $city->update($attributes);
@@ -31,8 +39,8 @@ class CityController extends Controller
         return $city;
     }
 
-    public function destroy(City $city) {
-
+    public function destroy(City $city)
+    {
         return $city->delete();
     }
 }
