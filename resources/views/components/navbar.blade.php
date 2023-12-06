@@ -1,3 +1,5 @@
+@props(['title'])
+
 <nav class="bg-white">
     <div class="border py-3 px-4">
         <div class="flex justify-between">
@@ -10,9 +12,9 @@
             </div>
 
             <div class="flex items-center">
-                <x-navlink href="cities">Cities</x-navlink>
-                <x-navlink href="airlines">Airlines</x-navlink>
-                <x-navlink href="flights">Flights</x-navlink>
+                <x-navlink active="{{ $title === 'Cities' ? true : false }}" href="cities">Cities</x-navlink>
+                <x-navlink active="{{ $title === 'Airlines' ? true : false }}" href="airlines">Airlines</x-navlink>
+                <x-navlink active="{{ $title === 'Flights' ? true : false }}" href="flights">Flights</x-navlink>
             </div>
 
             <div class="ml-2 flex">
