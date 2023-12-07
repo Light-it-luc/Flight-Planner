@@ -28,6 +28,7 @@ class AirlineController extends Controller
 
     public function store(StoreAirlineRequest $request)
     {
+
         $attributes = $request->validated();
 
         return Airline::create($attributes);
