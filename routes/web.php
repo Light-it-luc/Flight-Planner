@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AirlineController;
 use App\Http\Controllers\CityController;
-use App\Models\City;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,7 +21,7 @@ Route::group([
 ], function () {
     Route::get('/', 'index');
     Route::post('/', 'store');
-    Route::patch('/{city}', 'update');
+    Route::put('/{city}', 'update');
     Route::delete('/{city}', 'destroy');
 });
 
@@ -32,6 +31,6 @@ Route::group([
 ], function () {
     Route::get('/', 'index');
     Route::post('/', 'store');
+    Route::put('/{airline}', 'update');
     Route::delete('/{airline}', 'destroy');
-    Route::patch('/{airline}', 'update');
 });
