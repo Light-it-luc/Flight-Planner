@@ -1,73 +1,32 @@
 <x-layout :title="'Cities'">
 
-    <x-modal :id="'edit-modal'" class="bg-indigo-500"></x-modal>
-    <x-modal :id="'warning-modal'" class="bg-red-500"></x-modal>
+    <x-modal></x-modal>
 
     <div class="max-w-6xl m-auto mt-8">
         <div class="overflow-x-auto relative">
-        <table class="w-full text-sm text-center">
-            <caption class="hidden">Cities</caption>
-            <thead class="text-xs text-gray-800 uppercase border-b border-gray-300">
-            <tr>
-                <th scope="col" class="py-3 px-6">ID</th>
-                <th scope="col" class="py-3 px-6">City</th>
-                <th scope="col" class="py-3 px-6">Country</th>
-                <th scope="col" class="py-3 px-6">Incoming Flights</th>
-                <th scope="col" class="py-3 px-6">Outgoing Flights</th>
-            </tr>
-            </thead>
-            <tbody>
-                <tr create-row class="bg-white border-b border-gray-100">
-                    <td class="py-4 px-6"></td>
+
+        <x-table
+        :tableName="'Cities'" :columnTitles="['ID', 'Name', 'Country', 'Incoming Flights', 'Outgoing Flights']"
+        :firstInput="'name'" :secondInput="'country'">
+
+            @foreach($cities as $city)
+                <tr city-id="{{ $city->id }}" class="bg-white border-b border-gray-100">
+                    <td class="py-4 px-6">{{ $city->id }}</td>
+                    <td class="py-4 px-6">{{ $city->name }}</td>
+                    <td class="py-4 px-6">{{ $city->country }}</td>
+                    <td class="py-4 px-6">{{ $city->flights_to_count }}</td>
+                    <td class="py-4 px-6">{{ $city->flights_from_count }}</td>
                     <td class="py-4 px-6">
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder="Name"
-                            required
-                            class="p-1 text-center border border-gray-300 text-black
-                            placeholder-gray-300 rounded-lg">
-                    </td>
-                    <td class="py-4 px-6">
-                        <input
-                            type="text"
-                            name="country"
-                            placeholder="Country"
-                            required
-                            class="p-1 text-center border border-gray-300 text-black
-                            placeholder-gray-300 rounded-lg">
-                    </td>
-                    <td class="py-4 px-6"></td>
-                    <td class="py-4 px-6"></td>
-                    <td class="py-4 px-6">
-                        <x-button
-                            class="dark:bg-gray-500 hover:bg-gray-400"
-                            create-button>
-                            Create
-                        </x-button>
+                        <div id="btn-container" class="flex flex-row">
+                            <x-button class="edit-btn dark:bg-indigo-600 hover:bg-indigo-400">Edit</x-button>
+                            <x-button class="del-btn ml-2 dark:bg-red-600 hover:bg-red-400">Delete </x-button>
+                        </div>
                     </td>
                 </tr>
-                @foreach($cities as $city)
-                    <tr city-id="{{ $city->id }}" class="bg-white border-b border-gray-100">
-                        <td class="py-4 px-6">{{ $city->id }}</td>
-                        <td class="py-4 px-6">{{ $city->name }}</td>
-                        <td class="py-4 px-6">{{ $city->country }}</td>
-                        <td class="py-4 px-6">{{ $city->flights_to_count }}</td>
-                        <td class="py-4 px-6">{{ $city->flights_from_count }}</td>
-                        <td class="py-4 px-6">
-                            <x-button
-                                      class="edit-btn dark:bg-indigo-600 hover:bg-indigo-400">
-                                Edit
-                            </x-button>
-                            <x-button
-                                      class="del-btn ml-2 dark:bg-red-600 hover:bg-red-400">
-                                Delete
-                            </x-button>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+            @endforeach
+
+        </x-table>
+
         </div>
     </div>
 
@@ -76,22 +35,26 @@
     </div>
 
     <script>
-        function displayModal(id, title, body, footer='') {
-            const modal = $(`#${id}`)[0]
+        function displayModal(title, body, footer='', color='bg-indigo-500') {
+            const modal = $(`#modal`)[0]
+            const titleContainer = $('#modal-title').closest('div')
 
-            $(`#${id} h2[modal-title]`).text(title)
-            $(`#${id} div[modal-content]`).html(body)
-            $(`#${id} div button[close-modal-btn]`).before(footer)
+            $(titleContainer).removeClass('bg-indigo-500 bg-red-500').addClass(color);
+
+            $(`#modal-title`).text(title)
+            $(`#modal-content`).html(body)
+            $(`#modal-close-btn`).before(footer)
+
             modal.showModal()
         }
 
-        function closeModal(id) {
-            const modal = $(`#${id}`)[0]
-            const closeBtn = $(`#${id} div button[close-modal-btn]`)
+        function closeModal() {
+            const modal = $(`#modal`)[0]
+            const closeBtn = $(`#modal-close-btn`)
 
-            $(`#${id} div[modal-title]`).text('')
-            $(`#${id} div[modal-content]`).html('')
-            $(`#${id} div[modal-footer]`).html(closeBtn)
+            $(`#modal-title`).text('')
+            $(`#modal-content`).html('')
+            $(`#modal-footer`).html(closeBtn)
             modal.close()
         }
 
@@ -127,10 +90,9 @@
             }
           })
 
-          $('#edit-modal').on('click', '[close-modal-btn]', () => closeModal('edit-modal'))
-          $('#warning-modal').on('click', '[close-modal-btn]', () => closeModal('warning-modal'))
+          $('#modal').on('click', '#modal-close-btn', () => closeModal())
 
-          $('table').on('click', 'button[create-button]', function() {
+          $('table').on('click', '#create-button', function() {
               const city = {
                   name: $('input[name="name"]').val().trim(),
                   country: $('input[name="country"]').val().trim()
@@ -144,7 +106,7 @@
                   success: function(data) {
                       const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
 
-                      $('tr[create-row]').after(
+                      $('#create-row').after(
                           `<tr city-id=${data.id} class="bg-white border-b border-gray-100">
                               <td class="py-4 px-6">${data.id}</td>
                               <td class="py-4 px-6">${data.name}</td>
@@ -152,12 +114,14 @@
                               <td class="py-4 px-6">0</td>
                               <td class="py-4 px-6">0</td>
                               <td class="py-4 px-6">
+                                <div id="btn-container" class="flex flex-row">
                                   <button id="${data.id}"
                                           class="${btnClass} edit-btn dark:bg-indigo-600 hover:bg-indigo-400"
                                       >Edit</button>
                                   <button id="${data.id}"
                                           class="${btnClass} del-btn ml-2 dark:bg-red-600 hover:bg-red-400"
                                       >Delete</button>
+                                </div>
                               </td>
                           </tr>`
                       )
@@ -167,7 +131,7 @@
                   },
                   error: function (err) {
                     const content = parseErrorMessages(err)
-                    displayModal('warning-modal', 'Creation failed', content)
+                    displayModal('Creation failed', content, '', 'bg-red-500')
                   }
               })
           })
@@ -210,17 +174,17 @@
                 </div>
               `
               const submitBtn = `
-                <button modal-submit-edit-btn
+                <button id="modal-edit-btn"
                     class="bg-indigo-500 hover:bg-indigo-300 text-white
                     font-semibold py-2 px-4 text-white rounded-xl mx-2"
                     >Update</button>
               `
 
-              displayModal('edit-modal', 'Edit City', content, submitBtn)
+              displayModal('Edit City', content, submitBtn)
           })
 
-          $('dialog#edit-modal').on('click', '[modal-submit-edit-btn]', function() {
-            const modal = $(this).closest('#edit-modal')
+          $('#modal').on('click', '#modal-edit-btn', function() {
+            const modal = $('#modal')
 
             const id = $(modal).find('input[name="_id"]').val()
             const name = $(modal).find('input[name="edit-name"]').val()
@@ -232,7 +196,7 @@
             }
 
             $.ajax({
-                type: 'PATCH',
+                type: 'PUT',
                 url: '/cities/' + id,
                 data: updateCity,
                 dataType: 'json',
@@ -240,11 +204,25 @@
                     const [_, name, country] = getCellsInRow($(`tr[city-id=${data.id}]`))
                     $(name).text(data.name)
                     $(country).text(data.country)
-                    closeModal('edit-modal')
+                    closeModal()
                 },
                 error: function (err) {
-                    content = parseErrorMessages(err)
-                    displayModal('warning-modal', 'Edit Failed', content)
+                    const nameInput = $('#modal-content input[name="edit-name"]')
+                    const countryInput = $('#modal-content input[name="edit-country"]')
+
+                    $('.modal-edit-error').remove()
+
+                    const errors = err.responseJSON.errors
+                    if (Object.hasOwn(errors, 'name')) {
+                        let nameErrors =
+                        `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.name.join(" ")}</p>`
+                        $(nameInput).after(nameErrors)
+                    }
+                    if (Object.hasOwn(errors, 'country')) {
+                        let countryErrors =
+                        `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.country.join(" ")}</p>`
+                        $(countryInput).after(countryErrors)
+                    }
                 }
             })
           })
@@ -258,16 +236,16 @@
                 <input type="hidden" name="_id" value="${id}">
             `
             const confirmBtn = `
-                <button modal-submit-del-btn
+                <button id="modal-delete-btn"
                     class="bg-red-500 hover:bg-indigo-300 text-white
                     font-semibold py-2 px-4 text-white rounded-xl mx-2"
                     >Confirm</button>
               `
-            displayModal('warning-modal', 'Warning', content, confirmBtn)
+            displayModal('Warning', content, confirmBtn, 'bg-red-500')
           })
 
-          $('dialog#warning-modal').on('click', '[modal-submit-del-btn]', function() {
-            const modal = $(this).closest('#warning-modal')
+          $('#modal').on('click', '#modal-delete-btn', function() {
+            const modal = $('#modal')
             const id = $(modal).find('input[name="_id"]').val()
 
             $.ajax({
@@ -276,11 +254,11 @@
                 dataType: 'json',
                 success: function() {
                     $(`tr[city-id="${id}"]`).remove()
-                    closeModal('warning-modal')
+                    closeModal()
                 },
                 error: function (err) {
                     const content = parseErrorMessages(err)
-                    displayModal('warning-modal', 'Edit Failed', content)
+                    displayModal('Edit Failed', content, '', 'bg-red-500')
                 }
             })
           })

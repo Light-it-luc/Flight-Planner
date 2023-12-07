@@ -14,7 +14,7 @@
 </head>
 
 <body>
-    <x-navbar/>
+    <x-navbar :title="$title"/>
     <img class="w-full h-96 object-cover" src="images/travel-plane.jpg" alt="Ready for your next trip?">
 
     {{ $slot }}
