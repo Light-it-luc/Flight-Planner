@@ -196,7 +196,7 @@
             }
 
             $.ajax({
-                type: 'PATCH',
+                type: 'PUT',
                 url: '/cities/' + id,
                 data: updateCity,
                 dataType: 'json',

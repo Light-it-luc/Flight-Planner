@@ -72,9 +72,9 @@
             })
         }
 
-        const makePatch = async (url, data) => {
+        const makePut = async (url, data) => {
             return await fetch(url, {
-                method: "PATCH",
+                method: "PUT",
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
@@ -248,7 +248,7 @@
             const id = document.querySelector('input[name="_id"]').value
             const airline = getAirlineInputValues('edit-name', 'edit-description')
 
-            const response = await makePatch(`/airlines/${id}`, airline)
+            const response = await makePut(`/airlines/${id}`, airline)
 
             if (! response.ok) {
                 const errors = (await response.json()).errors
