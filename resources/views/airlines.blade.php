@@ -1,6 +1,6 @@
 <x-layout :title="'Airlines'">
 
-    <x-modal></x-modal>
+    <x-modal />
 
     <div class="max-w-6xl m-auto mt-8">
         <div class="overflow-x-auto relative">
@@ -34,7 +34,7 @@
     </div>
 
     <script>
-        function displayModal(title, content, footer="", color="bg-indigo-500") {
+        const displayModal = (title, content, footer="", color="bg-indigo-500") => {
             const modal = document.querySelector("#modal")
 
             let titleContainer = document.querySelector("#modal-title").closest("div")
@@ -48,7 +48,7 @@
             modal.showModal()
         }
 
-        function closeModal() {
+        const closeModal =  () => {
             const modal = document.querySelector("#modal")
             const closeBtn = document.querySelector("#modal-close-btn")
 
@@ -60,7 +60,7 @@
             modal.close()
         }
 
-        async function makePost(url, data) {
+        const makePost = async (url, data) => {
             return await fetch(url, {
                 method: "POST",
                 headers: {
@@ -72,7 +72,7 @@
             })
         }
 
-        async function makePatch(url, data) {
+        const makePatch = async (url, data) => {
             return await fetch(url, {
                 method: "PATCH",
                 headers: {
@@ -84,7 +84,7 @@
             })
         }
 
-        async function makeDelete(url) {
+        const makeDelete = async (url) => {
             return await fetch(url, {
                 method: "DELETE",
                 headers: {
@@ -93,7 +93,7 @@
             })
         }
 
-        function parseErrors(err) {
+        const parseErrors = (err) => {
             const validationErrors = err.errors
             let content = ''
 
@@ -103,7 +103,7 @@
             return `<ul>${content}</ul>`
         }
 
-        function insertAirlineRow(airline) {
+        const insertAirlineRow = (airline) => {
             let newRow = document.createElement("tr")
             newRow.setAttribute("airline-id", airline.id)
             const createRow = document.querySelector("tr#create-row")
@@ -120,7 +120,7 @@
             createRow.after(newRow)
         }
 
-        function createCell(content) {
+        const createCell = (content) => {
             const cellClass = document.querySelector("td").getAttribute("class")
 
             let newCell = document.createElement("td")
@@ -130,7 +130,7 @@
             return newCell
         }
 
-        function createEditDeleteBtns(id) {
+        const createEditDeleteBtns = (id) => {
             const cell = createCell("")
             const container = document.createElement("div")
             container.setAttribute("class", "flex flex-row")
@@ -160,7 +160,7 @@
             return cell
         }
 
-        function getAirlineInputValues(name, description) {
+        const getAirlineInputValues = (name, description) => {
             const inputName = document.querySelector(`input[name="${name}"]`)
             const inputDescription = document.querySelector(`input[name="${description}"]`)
 
@@ -172,12 +172,12 @@
             return airline
         }
 
-        function resetInputField(name, value="") {
+        const resetInputField = (name, value="") => {
             const inputName = document.querySelector(`input[name="${name}"]`)
             inputName.value = value
         }
 
-        function handleErrorsInEditModal(errors) {
+        const handleErrorsInEditModal = (errors) => {
             let previousErrors = document.querySelectorAll(".modal-edit-error")
             previousErrors.forEach(node => node.parentNode.removeChild(node))
 
@@ -194,7 +194,7 @@
             }
         }
 
-        async function createAirline() {
+        const createAirline = async () => {
             const newAirline = getAirlineInputValues("name", "description")
 
             const response = await makePost("/airlines", newAirline)
@@ -212,7 +212,7 @@
             return insertAirlineRow(storedAirline)
         }
 
-        async function deleteAirline(id) {
+        const deleteAirline = async (id) => {
             const response = await makeDelete(`/airlines/${id}`)
 
             if (! response.ok) {
@@ -225,7 +225,7 @@
             closeModal()
         }
 
-        function handleDeleteButton(target) {
+        const handleDeleteButton = (target) => {
             const id = target.closest("tr").firstElementChild.textContent
             const name = target.closest("tr").children[1].textContent
             const deleteBtn = document.createElement("button")
@@ -244,7 +244,7 @@
             displayModal("Warning", warningMessage, deleteBtn, "bg-red-500")
         }
 
-        async function editAirline(target) {
+        const editAirline = async (target) => {
             const id = document.querySelector('input[name="_id"]').value
             const airline = getAirlineInputValues('edit-name', 'edit-description')
 
@@ -262,7 +262,7 @@
             return closeModal()
         }
 
-        function handleEditButton(target) {
+        const handleEditButton = (target) => {
             const id = target.closest("tr").firstElementChild.textContent
             const name = target.closest("tr").children[1].textContent
             const description = target.closest("tr").children[2].textContent
