@@ -26,17 +26,14 @@ class City extends Model
         return $this->belongsToMany(Airline::class);
     }
 
-    public function scopeOrder(Builder $query, ?string $sortBy, ?string $sortOrder): void
+    public function scopeOrder(Builder $query, ?string $sortBy, bool $ascending): void
     {
         $allowedColumns = ['id', 'name'];
-        $allowedOrders = ['asc', 'desc'];
-
-        $sortOrder = strtolower($sortOrder);
+        $order = $ascending ? 'asc' : 'desc' ;
 
         $sortBy = in_array($sortBy, $allowedColumns)? $sortBy: 'id';
-        $sortOrder = in_array($sortOrder, $allowedOrders)? $sortOrder: 'asc';
 
-        $query->orderBy($sortBy, $sortOrder);
+        $query->orderBy($sortBy, $order);
     }
 
     public function scopeFilter(Builder $query, array $filters): void

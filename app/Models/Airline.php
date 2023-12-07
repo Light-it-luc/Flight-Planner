@@ -21,29 +21,29 @@ class Airline extends Model
         return $this->belongsToMany(City::class);
     }
 
-    public function scopeOrder(Builder $query, ?string $sortBy, ?string $sortOrder): void
+    public function scopeOrder(Builder $query, ?string $sortBy, bool $ascending): void
     {
         $allowedColumns = ['id', 'name'];
-        $allowedOrders = ['asc', 'desc'];
-
-        $sortOrder = strtolower($sortOrder);
+        $order = $ascending ? 'asc' : 'desc';
 
         $sortBy = in_array($sortBy, $allowedColumns)? $sortBy: 'id';
-        $sortOrder = in_array($sortOrder, $allowedOrders)? $sortOrder: 'asc';
 
-        $query->orderBy($sortBy, $sortOrder);
+        $query->orderBy($sortBy, $order);
     }
 
-    public function scopeFilter(Builder $query, array $filters): void
+    public function scopeFilterByCity(Builder $query, ?string $city): void
     {
-        $query->when($filters['city'] ?? false, function($query, $city) {
+        $query->when($city, function($query, $city) {
             $query->whereHas('cities', function($query) use($city) {
                 $query->where('city_id', $city);
             });
         });
+    }
 
-        $query->when(isset($filters['flights']), function ($query) use ($filters) {
-            $query->having('flights_count', '=', $filters['flights']);
+    public function scopeFilterByFlights(Builder $query, ?int $flights): void
+    {
+        $query->when(isset($flights), function ($query) use ($flights) {
+            $query->having('flights_count', '=', $flights);
         });
     }
 }

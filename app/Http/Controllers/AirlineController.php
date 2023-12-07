@@ -5,18 +5,20 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAirlineRequest;
 use App\Http\Requests\UpdateAirlineRequest;
 use App\Models\Airline;
+use Illuminate\Http\Request;
 
 class AirlineController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $sortBy = request('sort_by');
-        $sortOrder = request('sort_order');
+        $sortBy = $request->input('sort_by', 'id');
+        $ascending = $request->boolean('asc', true);
 
         $airlines = Airline::with('cities')
             ->withCount('flights')
-            ->order($sortBy, $sortOrder)
-            ->filter(request(['city', 'flights']))
+            ->order($sortBy, $ascending)
+            ->filterByCity($request->input('city'))
+            ->filterByFlights($request->input('flights'))
             ->paginate(10);
 
         return view('airlines', [
