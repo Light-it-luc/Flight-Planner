@@ -7,30 +7,14 @@
             <x-table
             :tableName="'Airlines'" :columnTitles="['ID', 'Name', 'Description', 'Flights']"
             :firstInput="'name'" :secondInput="'description'">
-
-                @foreach($airlines as $airline)
-                    <tr airline-id="{{ $airline->id }}" class="bg-white border-b border-gray-100">
-                        <td class="py-4 px-6">{{ $airline->id }}</td>
-                        <td class="py-4 px-6">{{ $airline->name }}</td>
-                        <td class="py-4 px-6">{{ $airline->description }}</td>
-                        <td class="py-4 px-6">{{ $airline->flights_count }}</td>
-                        <td class="py-4 px-6">
-                            <div id="btn-container" class="flex flex-row">
-                                <x-button
-                                    class="edit-btn m-1 w-3/5 dark:bg-indigo-600 hover:bg-indigo-400">Edit</x-button>
-                                <x-button
-                                    class="del-btn m-1 w-3/5 dark:bg-red-600 hover:bg-red-400">Delete</x-button>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-
             </x-table>
         </div>
     </div>
 
-    <div class="mt-12 mb-4 px-12">
-        {{ $airlines->links() }}
+    <div class="flex justify-between mt-12 mb-4 px-12">
+        <input type="hidden" name="_page" value="">
+        <x-button id="prev-page" class="bg-black hover:bg-gray-500">Prev</x-button>
+        <x-button id="next-page" class="bg-black hover:bg-gray-500">Next</x-button>
     </div>
 
     <script>
@@ -58,6 +42,62 @@
 
             document.querySelector("#modal-footer").appendChild(closeBtn)
             modal.close()
+        }
+
+        const clearTable = () => {
+            const tbody = document.querySelector('tbody')
+            let rows = document.querySelectorAll('tr[airline-id]')
+
+            rows.forEach(row => tbody.removeChild(row))
+        }
+
+        const populateTableWithValuesOfPage = async (page=1) => {
+            const response = await fetch(`airlines/get?page=${page}`, {
+                headers: {
+                    "Accept": "application/json"
+                }
+            })
+
+            if (! response.ok) {
+                console.log(response)
+                return displayModal("Error", "Something happened when trying to populate table", "", "bg-red-500")
+            }
+
+            const airlines = await response.json()
+            airlines.reverse().forEach(airline => addRowInAirlinesTable(airline))
+
+            document.querySelector('input[name="_page"]').value = page
+        }
+
+        const addRowInAirlinesTable = (airline) => {
+            const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
+
+            const createRow = document.querySelector('#create-row')
+
+            const content = `
+            <tr class="bg-white border-b border-gray-100">
+                <td class="py-4 px-6">${airline.id}</td>
+                <td class="py-4 px-6">${airline.name}</td>
+                <td class="py-4 px-6">${airline.description}</td>
+                <td class="py-4 px-6">0</td>
+                <td class="py-4 px-6">
+                <div id="btn-container" class="flex flex-row">
+                    <button id="${airline.id}"
+                            class="${btnClass} edit-btn dark:bg-indigo-600 hover:bg-indigo-400"
+                        >Edit</button>
+                    <button id="${airline.id}"
+                            class="${btnClass} del-btn ml-2 dark:bg-red-600 hover:bg-red-400"
+                        >Delete</button>
+                </div>
+                </td>
+            </tr>
+            `
+
+            const row = document.createElement('tr')
+            row.innerHTML = content
+            row.setAttribute("airline-id", airline.id)
+
+            createRow.after(row)
         }
 
         const makePost = async (url, data) => {
@@ -292,7 +332,31 @@
             return displayModal("Edit Airline", inputs, updateBtn)
         }
 
-        const table = document.querySelector('table')
+        populateTableWithValuesOfPage()
+
+        const prevPage = document.querySelector("#prev-page")
+        prevPage.addEventListener("click", () => {
+            const pageInput = document.querySelector('input[name="_page"]')
+            const currentPage = Number(pageInput.value)
+            const newPage = currentPage > 1 ? currentPage - 1 : 1
+            clearTable()
+
+            populateTableWithValuesOfPage(newPage)
+            pageInput.value = newPage
+        })
+
+        const nextPage = document.querySelector("#next-page")
+        nextPage.addEventListener("click", () => {
+            const pageInput = document.querySelector('input[name="_page"]')
+            const currentPage = Number(pageInput.value)
+            const newPage = currentPage ? currentPage + 1 : 1
+            clearTable()
+
+            populateTableWithValuesOfPage(newPage)
+            pageInput.value = newPage
+        })
+
+        const table = document.querySelector("table")
         table.addEventListener("click", function (event) {
             const target = event.target
             if (target.classList.contains("edit-btn")) {

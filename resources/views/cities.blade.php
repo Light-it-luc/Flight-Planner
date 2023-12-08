@@ -8,30 +8,15 @@
         <x-table
         :tableName="'Cities'" :columnTitles="['ID', 'Name', 'Country', 'Incoming Flights', 'Outgoing Flights']"
         :firstInput="'name'" :secondInput="'country'">
-
-            @foreach($cities as $city)
-                <tr city-id="{{ $city->id }}" class="bg-white border-b border-gray-100">
-                    <td class="py-4 px-6">{{ $city->id }}</td>
-                    <td class="py-4 px-6">{{ $city->name }}</td>
-                    <td class="py-4 px-6">{{ $city->country }}</td>
-                    <td class="py-4 px-6">{{ $city->flights_to_count }}</td>
-                    <td class="py-4 px-6">{{ $city->flights_from_count }}</td>
-                    <td class="py-4 px-6">
-                        <div id="btn-container" class="flex flex-row">
-                            <x-button class="edit-btn dark:bg-indigo-600 hover:bg-indigo-400">Edit</x-button>
-                            <x-button class="del-btn ml-2 dark:bg-red-600 hover:bg-red-400">Delete </x-button>
-                        </div>
-                    </td>
-                </tr>
-            @endforeach
-
         </x-table>
 
         </div>
     </div>
 
-    <div class="mt-12 mb-4 px-12">
-        {{ $cities->links() }}
+    <div class="flex justify-between mt-12 mb-4 px-12">
+        <input type="hidden" name="_page" value="">
+        <x-button id="prev-page" class="bg-black hover:bg-gray-500">Prev</x-button>
+        <x-button id="next-page" class="bg-black hover:bg-gray-500">Next</x-button>
     </div>
 
     <script>
@@ -82,6 +67,51 @@
           return wrapInTag('ul', content)
         }
 
+        const clearTable = () => {
+            $('tr[city-id]').remove()
+        }
+
+        const addRowInTable = (city) => {
+            const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
+
+            $('#create-row').after(
+                    `<tr city-id=${city.id} class="bg-white border-b border-gray-100">
+                        <td class="py-4 px-6">${city.id}</td>
+                        <td class="py-4 px-6">${city.name}</td>
+                        <td class="py-4 px-6">${city.country}</td>
+                        <td class="py-4 px-6">0</td>
+                        <td class="py-4 px-6">0</td>
+                        <td class="py-4 px-6">
+                        <div id="btn-container" class="flex flex-row">
+                            <button id="${city.id}"
+                                    class="${btnClass} edit-btn dark:bg-indigo-600 hover:bg-indigo-400"
+                                >Edit</button>
+                            <button id="${city.id}"
+                                    class="${btnClass} del-btn ml-2 dark:bg-red-600 hover:bg-red-400"
+                                >Delete</button>
+                        </div>
+                        </td>
+                    </tr>`
+            )
+        }
+
+        const populateTableWithValuesOfPage = (page=1) => {
+            $.ajax(`cities/get?page=${page}`, {
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function(data) {
+                    clearTable()
+                    data.reverse().forEach(city => addRowInTable(city))
+                },
+                error: function(err) {
+                    return displayModal("Error", "Something happened when trying to populate table", "", "bg-red-500")
+                }
+            })
+
+            $('input[name="_page"]').val(`${page}`)
+        }
+
         $(document).ready(function () {
 
           $.ajaxSetup({
@@ -90,7 +120,19 @@
             }
           })
 
+          populateTableWithValuesOfPage()
+
           $('#modal').on('click', '#modal-close-btn', () => closeModal())
+
+          $('#prev-page').click(() => {
+            const currentPage = Number($('input[name="_page"]').val())
+            populateTableWithValuesOfPage(currentPage - 1)
+          })
+
+          $('#next-page').click(() => {
+            const currentPage = Number($('input[name="_page"]').val())
+            populateTableWithValuesOfPage(currentPage + 1)
+          })
 
           $('table').on('click', '#create-button', function() {
               const city = {
@@ -106,25 +148,7 @@
                   success: function(data) {
                       const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
 
-                      $('#create-row').after(
-                          `<tr city-id=${data.id} class="bg-white border-b border-gray-100">
-                              <td class="py-4 px-6">${data.id}</td>
-                              <td class="py-4 px-6">${data.name}</td>
-                              <td class="py-4 px-6">${data.country}</td>
-                              <td class="py-4 px-6">0</td>
-                              <td class="py-4 px-6">0</td>
-                              <td class="py-4 px-6">
-                                <div id="btn-container" class="flex flex-row">
-                                  <button id="${data.id}"
-                                          class="${btnClass} edit-btn dark:bg-indigo-600 hover:bg-indigo-400"
-                                      >Edit</button>
-                                  <button id="${data.id}"
-                                          class="${btnClass} del-btn ml-2 dark:bg-red-600 hover:bg-red-400"
-                                      >Delete</button>
-                                </div>
-                              </td>
-                          </tr>`
-                      )
+                      addRowInTable(data)
 
                       $('input[name="name"]').val('')
                       $('input[name="country"]').val('')

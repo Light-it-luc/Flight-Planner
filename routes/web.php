@@ -19,7 +19,8 @@ Route::group([
     'prefix' => 'cities',
     'controller' => CityController::class
 ], function () {
-    Route::get('/', 'index');
+    Route::get('/get', 'index');
+    Route::get('/', 'indexView');
     Route::post('/', 'store');
     Route::put('/{city}', 'update');
     Route::delete('/{city}', 'destroy');
@@ -29,7 +30,8 @@ Route::group([
     'prefix' => 'airlines',
     'controller' => AirlineController::class
 ], function () {
-    Route::get('/', 'index');
+    Route::get('/get', 'index');
+    Route::get('/', 'indexView');
     Route::post('/', 'store');
     Route::put('/{airline}', 'update');
     Route::delete('/{airline}', 'destroy');
