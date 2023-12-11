@@ -319,6 +319,34 @@
                 history.pushState(null, "", "airlines?" + queryParams)
                 populateAirlinesTable()
           })
+
+          $("#col-id").click(() => {
+            $("#col-id").toggleClass("bg-gray-100 rounded-lg")
+            $("#col-name").removeClass("bg-gray-100")
+
+            let queryParams = new URLSearchParams(window.location.search);
+            queryParams.set("sort_by", "id")
+
+            const currentOrder = queryParams.get("asc")
+            queryParams.set("asc", currentOrder === "false")
+
+            history.pushState(null, "", "airlines?" + queryParams.toString())
+            populateAirlinesTable()
+          })
+
+          $("#col-name").click(() => {
+            $("#col-name").toggleClass("bg-gray-100 rounded-lg")
+            $("#col-id").removeClass("bg-gray-100")
+
+            let queryParams = new URLSearchParams(window.location.search);
+            queryParams.set("sort_by", "name")
+
+            const currentOrder = queryParams.get("asc")
+            queryParams.set("asc", currentOrder === "false")
+
+            history.pushState(null, "", "airlines?" + queryParams.toString())
+            populateAirlinesTable()
+          })
         })
     </script>
 </x-layout>

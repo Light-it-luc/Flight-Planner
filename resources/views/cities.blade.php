@@ -296,9 +296,37 @@
               .attr("url")
               .split("?")[1]
 
-            history.pushState(null, "", "cities?" + queryParams)
+            history.pushState(null, "", "cities?" + queryParams.toString())
             populateCitiesTable()
 
+          })
+
+          $("#col-id").click(() => {
+            $("#col-id").toggleClass("bg-gray-100 rounded-lg")
+            $("#col-name").removeClass("bg-gray-100")
+
+            let queryParams = new URLSearchParams(window.location.search);
+            queryParams.set("sort_by", "id")
+
+            const currentOrder = queryParams.get("asc")
+            queryParams.set("asc", currentOrder === "false")
+
+            history.pushState(null, "", "cities?" + queryParams.toString())
+            populateCitiesTable()
+          })
+
+          $("#col-name").click(() => {
+            $("#col-name").toggleClass("bg-gray-100 rounded-lg")
+            $("#col-id").removeClass("bg-gray-100")
+
+            let queryParams = new URLSearchParams(window.location.search);
+            queryParams.set("sort_by", "name")
+
+            const currentOrder = queryParams.get("asc")
+            queryParams.set("asc", currentOrder === "false")
+
+            history.pushState(null, "", "cities?" + queryParams.toString())
+            populateCitiesTable()
           })
         })
       </script>
