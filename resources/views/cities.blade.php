@@ -1,6 +1,6 @@
 <x-layout :title="'Cities'">
 
-    <x-modal></x-modal>
+    <x-modal/>
 
     <div class="max-w-6xl m-auto mt-8">
         <div class="overflow-x-auto relative">
@@ -13,14 +13,10 @@
         </div>
     </div>
 
-    <div class="flex justify-between mt-12 mb-4 px-12">
-        <input type="hidden" name="_page" value="">
-        <x-button id="prev-page" class="bg-black hover:bg-gray-500">Prev</x-button>
-        <x-button id="next-page" class="bg-black hover:bg-gray-500">Next</x-button>
-    </div>
+    <div id="pages-container" class="mt-12 mb-4 px-12"></div>
 
     <script>
-        function displayModal(title, body, footer='', color='bg-indigo-500') {
+        const displayModal = (title, body, footer='', color='bg-indigo-500') => {
             const modal = $(`#modal`)[0]
             const titleContainer = $('#modal-title').closest('div')
 
@@ -33,7 +29,7 @@
             modal.showModal()
         }
 
-        function closeModal() {
+        const closeModal = () => {
             const modal = $(`#modal`)[0]
             const closeBtn = $(`#modal-close-btn`)
 
@@ -43,7 +39,7 @@
             modal.close()
         }
 
-        function getCellsInRow(row) {
+        const getCellsInRow = (row) => {
             const cells = $(row).children('td')
 
             const id = $(cells[0])
@@ -53,66 +49,117 @@
             return [id, name, country]
         }
 
-        function wrapInTag(tag, text) {
-            return `<${tag}>${text}</${tag}>`
+        const getInputValues = (...inputNames) => {
+            let values = []
+
+            for (const name of inputNames) {
+                const node = $(`input[name=${name}]`)
+                if (node) {
+                    values.push($(node).val())
+                }
+            }
+
+            return values
         }
 
-        function parseErrorMessages(error) {
+        const parseErrorMessages = (error) => {
           const validationErrors = error.responseJSON.errors
           let content = ''
 
           messages = Object.values(validationErrors).flat()
-          messages.map(err => content += wrapInTag('li', err))
+          messages.map(err => content += `<li>${err}</li>`)
 
-          return wrapInTag('ul', content)
+          return `<ul>${content}</ul>`
         }
 
-        const clearTable = () => {
-            $('tr[city-id]').remove()
+        const handleEditErrors = (errors) => {
+            const nameInput = $('input[name="edit-name"]')
+            const countryInput = $('input[name="edit-country"]')
+
+            $('.modal-edit-error').remove()
+
+            if (Object.hasOwn(errors, 'name')) {
+            let nameErrors =
+                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.name.join(" ")}</p>`
+                $(nameInput).after(nameErrors)
+            }
+            if (Object.hasOwn(errors, 'country')) {
+                let countryErrors =
+                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.country.join(" ")}</p>`
+                $(countryInput).after(countryErrors)
+            }
         }
 
-        const addRowInTable = (city) => {
+        const addRowInCityTable = (city) => {
             const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
 
-            $('#create-row').after(
-                    `<tr city-id=${city.id} class="bg-white border-b border-gray-100">
-                        <td class="py-4 px-6">${city.id}</td>
-                        <td class="py-4 px-6">${city.name}</td>
-                        <td class="py-4 px-6">${city.country}</td>
-                        <td class="py-4 px-6">0</td>
-                        <td class="py-4 px-6">0</td>
-                        <td class="py-4 px-6">
-                        <div id="btn-container" class="flex flex-row">
-                            <button id="${city.id}"
-                                    class="${btnClass} edit-btn dark:bg-indigo-600 hover:bg-indigo-400"
-                                >Edit</button>
-                            <button id="${city.id}"
-                                    class="${btnClass} del-btn ml-2 dark:bg-red-600 hover:bg-red-400"
-                                >Delete</button>
-                        </div>
-                        </td>
-                    </tr>`
+            $('tbody').append(
+                `<tr city-id=${city.id} class="bg-white border-b border-gray-100">
+                    <td class="py-4 px-6">${city.id}</td>
+                    <td class="py-4 px-6">${city.name}</td>
+                    <td class="py-4 px-6">${city.country}</td>
+                    <td class="py-4 px-6">0</td>
+                    <td class="py-4 px-6">0</td>
+                    <td class="py-4 px-6">
+                    <div id="btn-container" class="flex flex-row">
+                        <button id="${city.id}"
+                                class="${btnClass} edit-btn dark:bg-indigo-600 hover:bg-indigo-400"
+                            >Edit</button>
+                        <button id="${city.id}"
+                                class="${btnClass} del-btn ml-2 dark:bg-red-600 hover:bg-red-400"
+                            >Delete</button>
+                    </div>
+                    </td>
+                </tr>`
             )
         }
 
-        const populateTableWithValuesOfPage = (page=1) => {
-            $.ajax(`cities/get?page=${page}`, {
-                headers: {
-                    'Accept': 'application/json'
-                },
-                success: function(data) {
-                    clearTable()
-                    data.reverse().forEach(city => addRowInTable(city))
+        const regenerateLinks = (links) => {
+            clearPaginationLinks()
+            const btnContainer = document.querySelector("#pages-container")
+
+            links.forEach(link => {
+                const btn = document.createElement("button")
+                btn.setAttribute("class", "text-black p-1 border border-gray-500 min-w-fit px-4 rounded-lg m-2")
+
+                if (link.url) {
+                    btn.classList.add("page-btn")
+                    btn.setAttribute("url", link.url)
+                }
+
+                let backgroundColor = (link.active) ? "bg-gray-300": "bg-white";
+                btn.classList.add(backgroundColor)
+
+                btn.textContent = link.label.replace("&laquo;", "").replace("&raquo;", "")
+                btnContainer.appendChild(btn)
+            })
+        }
+
+        const populateCitiesTable = () => {
+            let queryParams = new URLSearchParams(window.location.search);
+
+            $.ajax(`api/v1/cities?${queryParams.toString()}`, {
+                success: function(response) {
+                    const cities = response.data
+                    clearCitiesTable()
+                    cities.forEach(city => addRowInCityTable(city))
+                    regenerateLinks(response.links)
                 },
                 error: function(err) {
                     return displayModal("Error", "Something happened when trying to populate table", "", "bg-red-500")
                 }
             })
-
-            $('input[name="_page"]').val(`${page}`)
         }
 
-        $(document).ready(function () {
+        const clearCitiesTable = () => {
+            $('tr[city-id]').remove()
+        }
+
+        const clearPaginationLinks = () => {
+            $('#pages-container button').remove()
+        }
+
+        $(document).ready(function (e) {
 
           $.ajaxSetup({
             headers: {
@@ -120,19 +167,9 @@
             }
           })
 
-          populateTableWithValuesOfPage()
+          populateCitiesTable()
 
           $('#modal').on('click', '#modal-close-btn', () => closeModal())
-
-          $('#prev-page').click(() => {
-            const currentPage = Number($('input[name="_page"]').val())
-            populateTableWithValuesOfPage(currentPage - 1)
-          })
-
-          $('#next-page').click(() => {
-            const currentPage = Number($('input[name="_page"]').val())
-            populateTableWithValuesOfPage(currentPage + 1)
-          })
 
           $('table').on('click', '#create-button', function() {
               const city = {
@@ -142,16 +179,14 @@
 
               $.ajax({
                   type: 'POST',
-                  url: '/cities',
+                  url: 'api/v1/cities',
                   data: city,
                   dataType: 'json',
                   success: function(data) {
-                      const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
-
-                      addRowInTable(data)
-
                       $('input[name="name"]').val('')
                       $('input[name="country"]').val('')
+
+                      populateCitiesTable()
                   },
                   error: function (err) {
                     const content = parseErrorMessages(err)
@@ -173,24 +208,14 @@
                                    for="edit-name">
                                    Name
                             </label>
-                            <input
-                                type="text"
-                                name="edit-name"
-                                value="${name}"
-                                required
+                            <input type="text" name="edit-name" value="${name}" required
                                 class="mb-2 p-1 text-center border border-gray-300 text-black
                                 placeholder-gray-300 rounded-lg">
                         </div>
                         <div class="my-2">
                             <label class="block mb-1 uppercase font-bold text-sm text-gray-700"
-                                   for="edit-country">
-                                Country
-                            </label>
-                            <input
-                                type="text"
-                                name="edit-country"
-                                value="${country}"
-                                required
+                                   for="edit-country">Country</label>
+                            <input type="text" name="edit-country" value="${country}" equired
                                 class="mb-2 p-1 text-center border border-gray-300 text-black
                                 placeholder-gray-300 rounded-lg">
                         </div>
@@ -199,20 +224,15 @@
               `
               const submitBtn = `
                 <button id="modal-edit-btn"
-                    class="bg-indigo-500 hover:bg-indigo-300 text-white
-                    font-semibold py-2 px-4 text-white rounded-xl mx-2"
-                    >Update</button>
+                    class="bg-indigo-500 hover:bg-indigo-300 text-white font-semibold py-2 px-4
+                    text-white rounded-xl mx-2">Update</button>
               `
 
               displayModal('Edit City', content, submitBtn)
           })
 
           $('#modal').on('click', '#modal-edit-btn', function() {
-            const modal = $('#modal')
-
-            const id = $(modal).find('input[name="_id"]').val()
-            const name = $(modal).find('input[name="edit-name"]').val()
-            const country = $(modal).find('input[name="edit-country"]').val()
+            const [id, name, country] = getInputValues('_id', 'edit-name', 'edit-country')
 
             const updateCity = {
                 name: name.trim(),
@@ -221,32 +241,15 @@
 
             $.ajax({
                 type: 'PUT',
-                url: '/cities/' + id,
+                url: 'api/v1/cities/' + id,
                 data: updateCity,
                 dataType: 'json',
                 success: function(data) {
-                    const [_, name, country] = getCellsInRow($(`tr[city-id=${data.id}]`))
-                    $(name).text(data.name)
-                    $(country).text(data.country)
+                    populateCitiesTable()
                     closeModal()
                 },
                 error: function (err) {
-                    const nameInput = $('#modal-content input[name="edit-name"]')
-                    const countryInput = $('#modal-content input[name="edit-country"]')
-
-                    $('.modal-edit-error').remove()
-
-                    const errors = err.responseJSON.errors
-                    if (Object.hasOwn(errors, 'name')) {
-                        let nameErrors =
-                        `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.name.join(" ")}</p>`
-                        $(nameInput).after(nameErrors)
-                    }
-                    if (Object.hasOwn(errors, 'country')) {
-                        let countryErrors =
-                        `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.country.join(" ")}</p>`
-                        $(countryInput).after(countryErrors)
-                    }
+                    handleEditErrors(err.responseJSON.errors)
                 }
             })
           })
@@ -269,15 +272,14 @@
           })
 
           $('#modal').on('click', '#modal-delete-btn', function() {
-            const modal = $('#modal')
-            const id = $(modal).find('input[name="_id"]').val()
+            const [id] = getInputValues("_id")
 
             $.ajax({
                 type: 'DELETE',
-                url: '/cities/' + id,
+                url: 'api/v1/cities/' + id,
                 dataType: 'json',
                 success: function() {
-                    $(`tr[city-id="${id}"]`).remove()
+                    populateCitiesTable()
                     closeModal()
                 },
                 error: function (err) {
@@ -285,6 +287,15 @@
                     displayModal('Edit Failed', content, '', 'bg-red-500')
                 }
             })
+          })
+
+          $('#pages-container').on("click", ".page-btn", (event) => {
+            const newURL = $(event.target)
+              .attr("url")
+              .split("?")[1]
+
+            history.pushState(null, "", "cities?" + newURL)
+            populateCitiesTable()
           })
         })
       </script>

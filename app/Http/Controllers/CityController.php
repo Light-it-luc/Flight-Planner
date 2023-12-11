@@ -13,19 +13,11 @@ class CityController extends Controller
         return view('cities');
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $records_per_page = 10;
-
-        $page = $request->input('page', 1);
-        $page = ($page > 0)? $page: 1;
-
-        $offset = ($page - 1) * $records_per_page;
-
         return City::withCount(['flightsTo', 'flightsFrom'])
-            ->skip($offset)
-            ->take($records_per_page)
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
     }
 
     public function store(StoreCityRequest $request) {
