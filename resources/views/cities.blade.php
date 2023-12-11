@@ -111,28 +111,26 @@
                     </div>
                     </td>
                 </tr>`
-            )
+                )
         }
 
         const regeneratePaginationLinks = (links) => {
             clearPaginationLinks()
-            const btnContainer = document.querySelector("#pages-container")
+            const btnContainer = $("#pages-container")
 
             links.forEach(link => {
-                const btn = document.createElement("button")
-                btn.setAttribute("class", "text-black p-1 border border-gray-500 min-w-fit px-4 rounded-lg m-2")
+                let btnText = link.label.replace("&laquo;", "").replace("&raquo;", "")
+                const btn = $("<button>")
+                    .addClass("text-black p-1 border border-gray-500 min-w-fit px-4 rounded-lg m-2")
+                    .addClass(link.active ? "bg-gray-300" : "bg-white");
 
                 if (link.url) {
-                    btn.classList.add("page-btn")
-                    btn.setAttribute("url", link.url)
+                    btn.addClass("page-btn").attr("url", link.url)
                 }
 
-                let backgroundColor = (link.active) ? "bg-gray-300": "bg-white";
-                btn.classList.add(backgroundColor)
-
-                btn.textContent = link.label.replace("&laquo;", "").replace("&raquo;", "")
-                btnContainer.appendChild(btn)
-            })
+                btn.text(btnText);
+                btnContainer.append(btn)
+            });
         }
 
         const populateCitiesTable = () => {

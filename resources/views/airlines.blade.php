@@ -14,65 +14,54 @@
     <div id="pages-container" class="mt-12 mb-4 px-12"></div>
 
     <script>
-        const displayModal = (title, content, footer="", color="bg-indigo-500") => {
-            const modal = document.querySelector("#modal")
+        const displayModal = (title, body, footer='', color='bg-indigo-500') => {
+            const modal = $(`#modal`)[0]
+            const titleContainer = $('#modal-title').closest('div')
 
-            let titleContainer = document.querySelector("#modal-title").closest("div")
-            titleContainer.classList.remove("bg-indigo-500", "bg-red-500");
-            titleContainer.classList.add(color)
+            $(titleContainer).removeClass('bg-indigo-500 bg-red-500').addClass(color);
 
-            document.querySelector("#modal-title").textContent = title
-            document.querySelector("#modal-content").innerHTML = content
-            document.querySelector("#modal-footer").append(footer)
+            $(`#modal-title`).text(title)
+            $(`#modal-content`).html(body)
+            $(`#modal-close-btn`).before(footer)
 
             modal.showModal()
         }
 
-        const closeModal =  () => {
-            const modal = document.querySelector("#modal")
-            const closeBtn = document.querySelector("#modal-close-btn")
+        const closeModal = () => {
+            const modal = $(`#modal`)[0]
+            const closeBtn = $(`#modal-close-btn`)
 
-            document.querySelector("#modal-title").textContent = ""
-            document.querySelector("#modal-content").textContent = ""
-            document.querySelector("#modal-footer").innerHTML = ""
-
-            document.querySelector("#modal-footer").appendChild(closeBtn)
+            $(`#modal-title`).text('')
+            $(`#modal-content`).html('')
+            $(`#modal-footer`).html(closeBtn)
             modal.close()
         }
 
         const clearPaginationLinks = () => {
-            const container = document.querySelector("#pages-container")
-            const links = document.querySelectorAll("#pages-container button")
-
-            links.forEach(link => container.removeChild(link))
+            $('#pages-container button').remove()
         }
 
         const regeneratePaginationLinks = (links) => {
             clearPaginationLinks()
-            const btnContainer = document.querySelector("#pages-container")
+            const btnContainer = $("#pages-container")
 
             links.forEach(link => {
-                const btn = document.createElement("button")
-                btn.setAttribute("class", "text-black p-1 border border-gray-500 min-w-fit px-4 rounded-lg m-2")
+                let btnText = link.label.replace("&laquo;", "").replace("&raquo;", "")
+                const btn = $("<button>")
+                    .addClass("text-black p-1 border border-gray-500 min-w-fit px-4 rounded-lg m-2")
+                    .addClass(link.active ? "bg-gray-300" : "bg-white");
 
                 if (link.url) {
-                    btn.classList.add("page-btn")
-                    btn.setAttribute("url", link.url)
+                    btn.addClass("page-btn").attr("url", link.url)
                 }
 
-                let backgroundColor = (link.active) ? "bg-gray-300": "bg-white";
-                btn.classList.add(backgroundColor)
-
-                btn.textContent = link.label.replace("&laquo;", "").replace("&raquo;", "")
-                btnContainer.appendChild(btn)
-            })
+                btn.text(btnText);
+                btnContainer.append(btn)
+            });
         }
 
         const clearAirlinesTable = () => {
-            const tbody = document.querySelector('tbody')
-            let rows = document.querySelectorAll('tr[airline-id]')
-
-            rows.forEach(row => tbody.removeChild(row))
+            $('tr[airline-id]').remove()
         }
 
         const populateAirlinesTable = async (page=1) => {
@@ -96,9 +85,9 @@
             let values = []
 
             for (const name of inputNames) {
-                const node = document.querySelector(`input[name="${name}"]`)
+                const node = $(`input[name=${name}]`)
                 if (node) {
-                    values.push(node.value)
+                    values.push($(node).val())
                 }
             }
 
@@ -108,8 +97,8 @@
         const addRowInAirlinesTable = (airline) => {
             const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
 
-            const content = `
-            <tr class="bg-white border-b border-gray-100">
+            $('tbody').append(
+            `<tr airline-id=${airline.id} class="bg-white border-b border-gray-100">
                 <td class="py-4 px-6">${airline.id}</td>
                 <td class="py-4 px-6">${airline.name}</td>
                 <td class="py-4 px-6">${airline.description}</td>
@@ -124,14 +113,8 @@
                         >Delete</button>
                 </div>
                 </td>
-            </tr>
-            `
-
-            const row = document.createElement('tr')
-            row.innerHTML = content
-            row.setAttribute("airline-id", airline.id)
-
-            document.querySelector("tbody").append(row)
+            </tr>`
+            )
         }
 
         const makePost = async (url, data) => {
@@ -140,7 +123,7 @@
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
                 },
                 body: JSON.stringify(data)
             })
@@ -152,7 +135,7 @@
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
                 },
                 body: JSON.stringify(data)
             })
@@ -162,7 +145,7 @@
             return await fetch(url, {
                 method: "DELETE",
                 headers: {
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')
                 }
             })
         }
@@ -189,25 +172,24 @@
         }
 
         const resetInputField = (name, value="") => {
-            const inputName = document.querySelector(`input[name="${name}"]`)
-            inputName.value = value
+            $(`input[name="${name}"]`).val(value)
         }
 
-        const handleErrorsInEditModal = (errors) => {
-            let previousErrors = document.querySelectorAll(".modal-edit-error")
-            previousErrors.forEach(node => node.parentNode.removeChild(node))
+        const handleEditErrors = (errors) => {
+            const nameInput = $('input[name="edit-name"]')
+            const descInput = $('input[name="edit-description"]')
+
+            $('.modal-edit-error').remove()
 
             if (Object.hasOwn(errors, 'name')) {
-                const nameErrors = document.createElement("p")
-                nameErrors.setAttribute("class", "modal-edit-error text-red-500 text-xs mb-2")
-                nameErrors.textContent = errors.name.join(" ")
-                document.querySelector('input[name="edit-name"]').after(nameErrors)
+            let nameErrors =
+                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.name.join(" ")}</p>`
+                $(nameInput).after(nameErrors)
             }
             if (Object.hasOwn(errors, 'description')) {
-                const descErrors = document.createElement("p")
-                descErrors.setAttribute("class", "modal-edit-error text-red-500 text-xs mb-2")
-                descErrors.textContent = errors.description.join(" ")
-                document.querySelector('input[name="edit-description"]').after(descErrors)
+                let descErrors =
+                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.description.join(" ")}</p>`
+                $(descInput).after(descErrors)
             }
         }
 
@@ -249,7 +231,7 @@
 
             if (! response.ok) {
                 const errors = (await response.json()).errors
-                return handleErrorsInEditModal(errors)
+                return handleEditErrors(errors)
             }
 
             populateAirlinesTable()
@@ -260,13 +242,13 @@
         const handleDeleteButton = (target) => {
             const id = target.closest("tr").firstElementChild.textContent
             const name = target.closest("tr").children[1].textContent
-            const deleteBtn = document.createElement("button")
-            deleteBtn.textContent = "Delete"
-            deleteBtn.setAttribute(
-                "class",
-                "bg-red-500 hover:bg-red-300 text-white font-semibold py-2 px-4 text-white rounded-xl mx-2"
-            )
-            deleteBtn.setAttribute("id", "modal-delete-btn")
+
+            const deleteBtn = `
+                <button id="modal-delete-btn"
+                    class="bg-red-500 hover:bg-red-300 text-white
+                    font-semibold py-2 px-4 text-white rounded-xl mx-2"
+                    >Confirm</button>
+              `
 
             const warningMessage = `
             <input type="hidden" name="_id" value="${id}">
@@ -308,49 +290,33 @@
             return displayModal("Edit Airline", inputs, updateBtn)
         }
 
-        populateAirlinesTable()
+        $(document).ready(() => {
 
-        const table = document.querySelector("table")
-        table.addEventListener("click", function (event) {
-            const target = event.target
-            if (target.classList.contains("edit-btn")) {
-                return handleEditButton(target)
-            }
-            if (target.classList.contains("del-btn")) {
-                return handleDeleteButton(target)
-            }
-        })
+            populateAirlinesTable()
 
-        const createBtn = document.querySelector('#create-button')
-        createBtn.addEventListener("click", createAirline)
+            $("table").on("click", ".edit-btn", (event) => handleEditButton(event.target))
 
-        const closeModalBtn = document.querySelector("#modal-close-btn")
-        closeModalBtn.addEventListener("click", closeModal)
+            $("table").on("click", ".del-btn", (event) => handleDeleteButton(event.target))
 
-        const modal = document.querySelector("#modal")
-        modal.addEventListener("click", function (event) {
-            const targetId = event.target.getAttribute("id")
+            $("#create-button").on("click", createAirline)
 
-            if (targetId === "modal-delete-btn") {
-                const airlineId = document.querySelector(`dialog input[name="_id"]`).value
+            $("#modal").on("click", "#modal-close-btn", closeModal)
+
+            $("#modal").on("click", "#modal-delete-btn", () => {
+                const airlineId = $(`dialog input[name="_id"]`).val()
                 return deleteAirline(airlineId)
-            }
+            })
 
-            if (targetId === "modal-edit-btn") {
-                return editAirline(event.target)
-            }
-        })
+            $("#modal").on("click", "#modal-edit-btn", (event) => editAirline(event.target))
 
-        const pageContainer = document.querySelector("#pages-container")
-        pageContainer.addEventListener("click", (event) => {
-            if (event.target.classList.contains("page-btn")) {
+            $('#pages-container').on("click", ".page-btn", (event) => {
                 const queryParams = $(event.target)
-                  .attr("url")
-                  .split("?")[1]
+                .attr("url")
+                .split("?")[1]
 
                 history.pushState(null, "", "airlines?" + queryParams)
-                populateAirlinesTable()
-            }
+                populateCitiesTable()
+          })
         })
     </script>
 </x-layout>
