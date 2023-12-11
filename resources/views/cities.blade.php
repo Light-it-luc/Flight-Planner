@@ -114,7 +114,7 @@
             )
         }
 
-        const regenerateLinks = (links) => {
+        const regeneratePaginationLinks = (links) => {
             clearPaginationLinks()
             const btnContainer = document.querySelector("#pages-container")
 
@@ -143,7 +143,7 @@
                     const cities = response.data
                     clearCitiesTable()
                     cities.forEach(city => addRowInCityTable(city))
-                    regenerateLinks(response.links)
+                    regeneratePaginationLinks(response.links)
                 },
                 error: function(err) {
                     return displayModal("Error", "Something happened when trying to populate table", "", "bg-red-500")
@@ -290,12 +290,13 @@
           })
 
           $('#pages-container').on("click", ".page-btn", (event) => {
-            const newURL = $(event.target)
+            const queryParams = $(event.target)
               .attr("url")
               .split("?")[1]
 
-            history.pushState(null, "", "cities?" + newURL)
+            history.pushState(null, "", "cities?" + queryParams)
             populateCitiesTable()
+
           })
         })
       </script>
