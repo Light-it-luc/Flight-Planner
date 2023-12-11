@@ -314,8 +314,9 @@
                 .attr("url")
                 .split("?")[1]
 
+                console.log(queryParams)
                 history.pushState(null, "", "airlines?" + queryParams)
-                populateCitiesTable()
+                populateAirlinesTable()
           })
         })
     </script>
