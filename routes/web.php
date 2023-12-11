@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\AirlineViewController;
-use App\Http\Controllers\CityViewController;
+use App\Http\Controllers\AirlineController;
+use App\Http\Controllers\CityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,5 +15,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('cities', [CityViewController::class, 'index']);
-Route::get('airlines', [AirlineViewController::class, 'index']);
+Route::get('cities', [CityController::class, 'index']);
+Route::get('airlines', [AirlineController::class, 'index']);
