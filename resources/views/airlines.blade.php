@@ -11,11 +11,7 @@
         </div>
     </div>
 
-    <div class="flex justify-between mt-12 mb-4 px-12">
-        <input type="hidden" name="_page" value="">
-        <x-button id="prev-page" class="bg-black hover:bg-gray-500">Prev</x-button>
-        <x-button id="next-page" class="bg-black hover:bg-gray-500">Next</x-button>
-    </div>
+    <div id="pages-container" class="mt-12 mb-4 px-12"></div>
 
     <script>
         const displayModal = (title, content, footer="", color="bg-indigo-500") => {
@@ -44,35 +40,73 @@
             modal.close()
         }
 
-        const clearTable = () => {
+        const clearPaginationLinks = () => {
+            const container = document.querySelector("#pages-container")
+            const links = document.querySelectorAll("#pages-container button")
+
+            links.forEach(link => container.removeChild(link))
+        }
+
+        const regeneratePaginationLinks = (links) => {
+            clearPaginationLinks()
+            const btnContainer = document.querySelector("#pages-container")
+
+            links.forEach(link => {
+                const btn = document.createElement("button")
+                btn.setAttribute("class", "text-black p-1 border border-gray-500 min-w-fit px-4 rounded-lg m-2")
+
+                if (link.url) {
+                    btn.classList.add("page-btn")
+                    btn.setAttribute("url", link.url)
+                }
+
+                let backgroundColor = (link.active) ? "bg-gray-300": "bg-white";
+                btn.classList.add(backgroundColor)
+
+                btn.textContent = link.label.replace("&laquo;", "").replace("&raquo;", "")
+                btnContainer.appendChild(btn)
+            })
+        }
+
+        const clearAirlinesTable = () => {
             const tbody = document.querySelector('tbody')
             let rows = document.querySelectorAll('tr[airline-id]')
 
             rows.forEach(row => tbody.removeChild(row))
         }
 
-        const populateTableWithValuesOfPage = async (page=1) => {
-            const response = await fetch(`airlines/get?page=${page}`, {
-                headers: {
-                    "Accept": "application/json"
-                }
-            })
+        const populateAirlinesTable = async (page=1) => {
+            let queryParams = new URLSearchParams(window.location.search);
+
+            const response = await fetch(`api/v1/airlines?${queryParams.toString()}`)
 
             if (! response.ok) {
-                console.log(response)
                 return displayModal("Error", "Something happened when trying to populate table", "", "bg-red-500")
             }
 
-            const airlines = await response.json()
-            airlines.reverse().forEach(airline => addRowInAirlinesTable(airline))
+            const retrieved = await response.json()
+            const airlines = retrieved.data
 
-            document.querySelector('input[name="_page"]').value = page
+            clearAirlinesTable()
+            airlines.forEach(airline => addRowInAirlinesTable(airline))
+            regeneratePaginationLinks(retrieved.links)
+        }
+
+        const getInputValues = (...inputNames) => {
+            let values = []
+
+            for (const name of inputNames) {
+                const node = document.querySelector(`input[name="${name}"]`)
+                if (node) {
+                    values.push(node.value)
+                }
+            }
+
+            return values
         }
 
         const addRowInAirlinesTable = (airline) => {
             const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
-
-            const createRow = document.querySelector('#create-row')
 
             const content = `
             <tr class="bg-white border-b border-gray-100">
@@ -97,7 +131,7 @@
             row.innerHTML = content
             row.setAttribute("airline-id", airline.id)
 
-            createRow.after(row)
+            document.querySelector("tbody").append(row)
         }
 
         const makePost = async (url, data) => {
@@ -143,70 +177,12 @@
             return `<ul>${content}</ul>`
         }
 
-        const insertAirlineRow = (airline) => {
-            let newRow = document.createElement("tr")
-            newRow.setAttribute("airline-id", airline.id)
-            const createRow = document.querySelector("tr#create-row")
-
-            newRow.setAttribute("class", createRow.getAttribute("class"))
-
-            const targetProperties = ["id", "name", "description"]
-
-            targetProperties.map((prop) => newRow.appendChild(createCell(airline[prop])))
-
-            newRow.appendChild(createCell(0))
-
-            newRow.appendChild(createEditDeleteBtns(airline.id))
-            createRow.after(newRow)
-        }
-
-        const createCell = (content) => {
-            const cellClass = document.querySelector("td").getAttribute("class")
-
-            let newCell = document.createElement("td")
-            newCell.setAttribute("class", cellClass)
-            newCell.textContent = content
-
-            return newCell
-        }
-
-        const createEditDeleteBtns = (id) => {
-            const cell = createCell("")
-            const container = document.createElement("div")
-            container.setAttribute("class", "flex flex-row")
-            container.setAttribute("id", "btn-container")
-
-            const editBtn = document.createElement("button")
-            editBtn.textContent = "Edit"
-            editBtn.setAttribute(
-                "class",
-                `edit-btn m-1 w-3/5 dark:bg-indigo-600 hover:bg-indigo-400
-                text-white font-semibold py-2 px-4 text-white rounded-xl`
-            )
-
-            const deleteBtn = document.createElement("button")
-            deleteBtn.textContent = "Delete"
-            deleteBtn.setAttribute(
-                "class",
-                `del-btn m-1 w-3/5 dark:bg-red-600 hover:bg-red-400
-                text-white font-semibold py-2 px-4 text-white rounded-xl`
-            )
-
-            container.append(editBtn)
-            container.append(deleteBtn)
-
-            cell.append(container)
-
-            return cell
-        }
-
-        const getAirlineInputValues = (name, description) => {
-            const inputName = document.querySelector(`input[name="${name}"]`)
-            const inputDescription = document.querySelector(`input[name="${description}"]`)
+        const getAirlineFromInputs = (name, description) => {
+            const [inputName, inputDesc] = getInputValues(name, description)
 
             const airline = {
-                name: inputName.value.trim(),
-                description: inputDescription.value.trim()
+                name: inputName.trim(),
+                description: inputDesc.trim()
             }
 
             return airline
@@ -221,23 +197,24 @@
             let previousErrors = document.querySelectorAll(".modal-edit-error")
             previousErrors.forEach(node => node.parentNode.removeChild(node))
 
-            const para = document.createElement("p")
-            para.setAttribute("class", "modal-edit-error text-red-500 text-xs mb-2")
-
             if (Object.hasOwn(errors, 'name')) {
-                para.textContent = errors.name.join(" ")
-                document.querySelector('input[name="edit-name"]').after(para)
+                const nameErrors = document.createElement("p")
+                nameErrors.setAttribute("class", "modal-edit-error text-red-500 text-xs mb-2")
+                nameErrors.textContent = errors.name.join(" ")
+                document.querySelector('input[name="edit-name"]').after(nameErrors)
             }
             if (Object.hasOwn(errors, 'description')) {
-                para.textContent = errors.description.join(" ")
-                document.querySelector('input[name="edit-description"]').after(para)
+                const descErrors = document.createElement("p")
+                descErrors.setAttribute("class", "modal-edit-error text-red-500 text-xs mb-2")
+                descErrors.textContent = errors.description.join(" ")
+                document.querySelector('input[name="edit-description"]').after(descErrors)
             }
         }
 
         const createAirline = async () => {
-            const newAirline = getAirlineInputValues("name", "description")
+            const newAirline = getAirlineFromInputs("name", "description")
 
-            const response = await makePost("/airlines", newAirline)
+            const response = await makePost("api/v1/airlines", newAirline)
 
             if (! response.ok) {
                 const errors = await response.json()
@@ -248,12 +225,11 @@
             resetInputField("name")
             resetInputField("description")
 
-            const storedAirline = await response.json()
-            return insertAirlineRow(storedAirline)
+            populateAirlinesTable()
         }
 
         const deleteAirline = async (id) => {
-            const response = await makeDelete(`/airlines/${id}`)
+            const response = await makeDelete(`api/v1/airlines/${id}`)
 
             if (! response.ok) {
                 return displayModal(
@@ -261,8 +237,24 @@
                 )
             }
 
-            document.querySelector(`tr[airline-id="${id}"]`).remove()
+            populateAirlinesTable()
             closeModal()
+        }
+
+        const editAirline = async (target) => {
+            const [id] = getInputValues("_id")
+            const airline = getAirlineFromInputs("edit-name", "edit-description")
+
+            const response = await makePut(`api/v1/airlines/${id}`, airline)
+
+            if (! response.ok) {
+                const errors = (await response.json()).errors
+                return handleErrorsInEditModal(errors)
+            }
+
+            populateAirlinesTable()
+
+            return closeModal()
         }
 
         const handleDeleteButton = (target) => {
@@ -284,28 +276,12 @@
             displayModal("Warning", warningMessage, deleteBtn, "bg-red-500")
         }
 
-        const editAirline = async (target) => {
-            const id = document.querySelector('input[name="_id"]').value
-            const airline = getAirlineInputValues('edit-name', 'edit-description')
-
-            const response = await makePut(`/airlines/${id}`, airline)
-
-            if (! response.ok) {
-                const errors = (await response.json()).errors
-                return handleErrorsInEditModal(errors)
-            }
-
-            const row = document.querySelector(`tr[airline-id="${id}"]`)
-            row.children[1].textContent = airline.name
-            row.children[2].textContent = airline.description
-
-            return closeModal()
-        }
-
         const handleEditButton = (target) => {
-            const id = target.closest("tr").firstElementChild.textContent
-            const name = target.closest("tr").children[1].textContent
-            const description = target.closest("tr").children[2].textContent
+            const currentRow = target.closest("tr")
+
+            const id = currentRow.firstElementChild.textContent
+            const name = currentRow.children[1].textContent
+            const description = currentRow.children[2].textContent
 
             const inputs = `
             <input type="hidden" name="_id" value="${id}">
@@ -332,29 +308,7 @@
             return displayModal("Edit Airline", inputs, updateBtn)
         }
 
-        populateTableWithValuesOfPage()
-
-        const prevPage = document.querySelector("#prev-page")
-        prevPage.addEventListener("click", () => {
-            const pageInput = document.querySelector('input[name="_page"]')
-            const currentPage = Number(pageInput.value)
-            const newPage = currentPage > 1 ? currentPage - 1 : 1
-            clearTable()
-
-            populateTableWithValuesOfPage(newPage)
-            pageInput.value = newPage
-        })
-
-        const nextPage = document.querySelector("#next-page")
-        nextPage.addEventListener("click", () => {
-            const pageInput = document.querySelector('input[name="_page"]')
-            const currentPage = Number(pageInput.value)
-            const newPage = currentPage ? currentPage + 1 : 1
-            clearTable()
-
-            populateTableWithValuesOfPage(newPage)
-            pageInput.value = newPage
-        })
+        populateAirlinesTable()
 
         const table = document.querySelector("table")
         table.addEventListener("click", function (event) {
@@ -384,6 +338,18 @@
 
             if (targetId === "modal-edit-btn") {
                 return editAirline(event.target)
+            }
+        })
+
+        const pageContainer = document.querySelector("#pages-container")
+        pageContainer.addEventListener("click", (event) => {
+            if (event.target.classList.contains("page-btn")) {
+                const queryParams = $(event.target)
+                  .attr("url")
+                  .split("?")[1]
+
+                history.pushState(null, "", "airlines?" + queryParams)
+                populateAirlinesTable()
             }
         })
     </script>

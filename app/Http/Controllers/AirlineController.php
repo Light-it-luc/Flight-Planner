@@ -14,20 +14,12 @@ class AirlineController extends Controller
         return view('airlines');
     }
 
-    public function index(Request $request)
+    public function index()
     {
-        $records_per_page = 10;
-
-        $page = $request->input('page', 1);
-        $page = ($page > 0)? $page: 1;
-
-        $offset = ($page - 1) * $records_per_page;
-
         return Airline::with('cities')
-                ->withCount('flights')
-                ->skip($offset)
-                ->take($records_per_page)
-                ->get();
+            ->withCount('flights')
+            ->paginate(10)
+            ->withQueryString();
     }
 
     public function store(StoreAirlineRequest $request) {
