@@ -8,19 +8,21 @@ use Illuminate\Http\Request;
 
 class CityController extends Controller
 {
+    public function indexView()
+    {
+        return view('cities');
+    }
+
     public function index(Request $request)
     {
         $sortBy = $request->input('sort_by', 'id');
         $ascending = $request->boolean('asc', true);
 
-        $cities = City::withCount(['flightsTo', 'flightsFrom'])
+        return City::withCount(['flightsTo', 'flightsFrom'])
             ->order($sortBy, $ascending)
             ->filter($request->only(['airline']))
-            ->paginate(10);
-
-        return view('cities', [
-            'cities' => $cities
-        ]);
+            ->paginate(10)
+            ->withQueryString();
     }
 
     public function store(StoreCityRequest $request)

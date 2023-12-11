@@ -1,7 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\AirlineController;
+use App\Http\Controllers\CityController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +18,24 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::group([
+    'prefix' => 'v1/cities',
+    'controller' => CityController::class
+], static function () {
+    Route::get('/', 'index');
+    Route::post('/', 'store');
+    Route::put('/{city}', 'update');
+    Route::delete('/{city}', 'destroy');
+});
+
+Route::group([
+    'prefix' => 'v1/airlines',
+    'controller' => AirlineController::class
+], static function () {
+    Route::get('/', 'index');
+    Route::post('/', 'store');
+    Route::put('/{airline}', 'update');
+    Route::delete('/{airline}', 'destroy');
 });

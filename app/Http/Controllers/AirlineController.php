@@ -9,26 +9,27 @@ use Illuminate\Http\Request;
 
 class AirlineController extends Controller
 {
+    public function indexView()
+    {
+        return view('airlines');
+    }
+
     public function index(Request $request)
     {
         $sortBy = $request->input('sort_by', 'id');
         $ascending = $request->boolean('asc', true);
 
-        $airlines = Airline::with('cities')
+        return Airline::with('cities')
             ->withCount('flights')
             ->order($sortBy, $ascending)
             ->filterByCity($request->input('city'))
             ->filterByFlights($request->input('flights'))
-            ->paginate(10);
-
-        return view('airlines', [
-            'airlines' => $airlines
-        ]);
+            ->paginate(10)
+            ->withQueryString();
     }
 
     public function store(StoreAirlineRequest $request)
     {
-
         $attributes = $request->validated();
 
         return Airline::create($attributes);
