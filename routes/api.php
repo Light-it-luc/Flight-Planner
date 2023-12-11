@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\AirlineController;
-use App\Http\Controllers\CityController;
+use App\Http\Controllers\Api\AirlineController;
+use App\Http\Controllers\Api\CityController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 

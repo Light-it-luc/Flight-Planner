@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAirlineRequest;
 use App\Http\Requests\UpdateAirlineRequest;
 use App\Models\Airline;
@@ -9,11 +10,6 @@ use Illuminate\Http\Request;
 
 class AirlineController extends Controller
 {
-    public function indexView()
-    {
-        return view('airlines');
-    }
-
     public function index()
     {
         return Airline::with('cities')

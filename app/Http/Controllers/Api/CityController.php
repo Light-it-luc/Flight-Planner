@@ -1,18 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCityRequest;
 use App\Models\City;
 use Illuminate\Http\Request;
 
 class CityController extends Controller
 {
-    public function indexView()
-    {
-        return view('cities');
-    }
-
     public function index()
     {
         return City::withCount(['flightsTo', 'flightsFrom'])
