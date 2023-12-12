@@ -18,78 +18,24 @@
 
     <script>
 
-        const displayModal = (title, body, footer='', color='bg-indigo-500') => {
-            const modal = $(`#modal`)[0]
-            const titleContainer = $('#modal-title').closest('div')
+        const populateCitiesTable = () => {
+            let queryParams = new URLSearchParams(window.location.search);
 
-            $(titleContainer).removeClass('bg-indigo-500 bg-red-500').addClass(color);
-
-            $(`#modal-title`).text(title)
-            $(`#modal-content`).html(body)
-            $(`#modal-close-btn`).before(footer)
-
-            modal.showModal()
-        }
-
-        const closeModal = () => {
-            const modal = $(`#modal`)[0]
-            const closeBtn = $(`#modal-close-btn`)
-
-            $(`#modal-title`).text('')
-            $(`#modal-content`).html('')
-            $(`#modal-footer`).html(closeBtn)
-            modal.close()
-        }
-
-        const getCellsInRow = (row) => {
-            const cells = $(row).children('td')
-
-            const id = $(cells[0])
-            const name = $(cells[1])
-            const country = $(cells[2])
-
-            return [id, name, country]
-        }
-
-        const getInputValues = (...inputNames) => {
-            let values = []
-
-            for (const name of inputNames) {
-                const node = $(`input[name=${name}]`)
-                if (node) {
-                    values.push($(node).val())
+            $.ajax(`api/v1/cities?${queryParams.toString()}`, {
+                success: function(response) {
+                    const cities = response.data
+                    clearCitiesTable()
+                    cities.forEach(city => addRowInCityTable(city))
+                    regeneratePaginationLinks(response.links)
+                },
+                error: function(err) {
+                    return displayModal("Error", "Something happened when trying to populate table", "", "bg-red-500")
                 }
-            }
-
-            return values
+            })
         }
 
-        const parseErrorMessages = (error) => {
-          const validationErrors = error.responseJSON.errors
-          let content = ''
-
-          messages = Object.values(validationErrors).flat()
-          messages.map(err => content += `<li>${err}</li>`)
-
-          return `<ul>${content}</ul>`
-        }
-
-        const handleEditErrors = (errors) => {
-            const nameInput = $('input[name="edit-name"]')
-            const countryInput = $('input[name="edit-country"]')
-
-            $('.modal-edit-error').remove()
-
-            if (Object.hasOwn(errors, 'name')) {
-            let nameErrors =
-                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.name.join(" ")}</p>`
-                $(nameInput).after(nameErrors)
-            }
-            if (Object.hasOwn(errors, 'country')) {
-                let countryErrors =
-                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.country.join(" ")}</p>`
-                $(countryInput).after(countryErrors)
-            }
+        const clearCitiesTable = () => {
+            $('tr[city-id]').remove()
         }
 
         const addRowInCityTable = (city) => {
@@ -116,67 +62,57 @@
                 )
         }
 
-        const regeneratePaginationLinks = (links) => {
-            clearPaginationLinks()
-            const btnContainer = $("#pages-container")
+        const getCellsInRow = (row) => {
+            const cells = $(row).children('td')
 
-            links.forEach(link => {
-                let btnText = link.label.replace("&laquo;", "").replace("&raquo;", "")
-                const btn = $("<button>")
-                    .addClass("text-black p-1 border border-gray-500 min-w-fit px-4 rounded-lg m-2")
-                    .addClass(link.active ? "bg-gray-300" : "bg-white");
+            const id = $(cells[0])
+            const name = $(cells[1])
+            const country = $(cells[2])
 
-                if (link.url) {
-                    btn.addClass("page-btn").attr("url", link.url)
-                }
-
-                btn.text(btnText);
-                btnContainer.append(btn)
-            });
+            return [id, name, country]
         }
 
-        const populateCitiesTable = () => {
-            let queryParams = new URLSearchParams(window.location.search);
+        const handleCityEditErrors = (errors) => {
+            const nameInput = $('input[name="edit-name"]')
+            const countryInput = $('input[name="edit-country"]')
 
-            $.ajax(`api/v1/cities?${queryParams.toString()}`, {
-                success: function(response) {
-                    const cities = response.data
-                    clearCitiesTable()
-                    cities.forEach(city => addRowInCityTable(city))
-                    regeneratePaginationLinks(response.links)
-                },
-                error: function(err) {
-                    return displayModal("Error", "Something happened when trying to populate table", "", "bg-red-500")
-                }
-            })
+            $('.modal-edit-error').remove()
+
+            if (Object.hasOwn(errors, 'name')) {
+            let nameErrors =
+                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.name.join(" ")}</p>`
+                $(nameInput).after(nameErrors)
+            }
+            if (Object.hasOwn(errors, 'country')) {
+                let countryErrors =
+                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.country.join(" ")}</p>`
+                $(countryInput).after(countryErrors)
+            }
         }
 
-        const clearCitiesTable = () => {
-            $('tr[city-id]').remove()
-        }
-
-        const clearPaginationLinks = () => {
-            $('#pages-container button').remove()
-        }
-
-        const colorTableHeadersOnSort = () => {
+        const colorCityTableHeadersOnSort = () => {
             const queryParams = new URLSearchParams(window.location.search);
             const sortOrder = queryParams.get("sort_by")
 
             if (sortOrder === "name") {
-                $("#col-name").toggleClass("bg-gray-100")
+                $("#col-name").addClass("bg-gray-100")
                 $("#col-country").removeClass("bg-gray-100")
                 $("#col-id").removeClass("bg-gray-100")
             } else if(sortOrder === "country") {
-                $("#col-country").toggleClass("bg-gray-100")
+                $("#col-country").addClass("bg-gray-100")
                 $("#col-name").removeClass("bg-gray-100")
                 $("#col-id").removeClass("bg-gray-100")
             } else {
-                $("#col-id").toggleClass("bg-gray-100")
+                $("#col-id").addClass("bg-gray-100")
                 $("#col-name").removeClass("bg-gray-100")
                 $("#col-country").removeClass("bg-gray-100")
             }
         }
+
+        const sortCityTable = (columnName) => sortTableBy(columnName, "cities", () => {
+            colorCityTableHeadersOnSort()
+            populateCitiesTable()
+        })
 
         $(document).ready(() => {
 
@@ -186,7 +122,7 @@
             }
           })
 
-          colorTableHeadersOnSort()
+          colorCityTableHeadersOnSort()
           populateCitiesTable()
 
           $('#modal').on('click', '#modal-close-btn', closeModal)
@@ -245,7 +181,6 @@
               `
               const submitBtn = `
                 <button id="modal-edit-btn"
-
                     class="bg-indigo-500 hover:bg-indigo-300 text-white font-semibold py-2 px-4
                     text-white rounded-xl mx-2">Update</button>
               `
@@ -254,7 +189,6 @@
           })
 
           $('#modal').on('click', '#modal-edit-btn', () => {
-
             const [id, name, country] = getInputValues('_id', 'edit-name', 'edit-country')
 
             const updateCity = {
@@ -272,7 +206,7 @@
                     closeModal()
                 },
                 error: function (err) {
-                    handleEditErrors(err.responseJSON.errors)
+                    handleCityEditErrors(err.responseJSON.errors)
                 }
             })
           })
@@ -322,44 +256,11 @@
 
           })
 
-          $("#col-id").click(() => {
-            let queryParams = new URLSearchParams(window.location.search);
-            queryParams.set("sort_by", "id")
+          $("#col-id").click(() => sortCityTable("id"))
 
-            const currentOrder = queryParams.get("asc")
-            queryParams.set("asc", currentOrder === "false")
+          $("#col-name").click(() => sortCityTable("name"))
 
-            history.pushState(null, "", "cities?" + queryParams.toString())
-
-            colorTableHeadersOnSort()
-            populateCitiesTable()
-          })
-
-          $("#col-name").click(() => {
-            let queryParams = new URLSearchParams(window.location.search);
-            queryParams.set("sort_by", "name")
-
-            const currentOrder = queryParams.get("asc")
-            queryParams.set("asc", currentOrder === "false")
-
-            history.pushState(null, "", "cities?" + queryParams.toString())
-
-            colorTableHeadersOnSort()
-            populateCitiesTable()
-          })
-
-          $("#col-country").click(() => {
-            let queryParams = new URLSearchParams(window.location.search);
-            queryParams.set("sort_by", "country")
-
-            const currentOrder = queryParams.get("asc")
-            queryParams.set("asc", currentOrder === "false")
-
-            history.pushState(null, "", "cities?" + queryParams.toString())
-
-            colorTableHeadersOnSort()
-            populateCitiesTable()
-          })
+          $("#col-country").click(() => sortCityTable("country"))
 
           $("#airline-filter").change((event) => {
             let queryParams = new URLSearchParams(window.location.search);

@@ -15,52 +15,6 @@
     <div id="pages-container" class="mt-12 mb-4 px-12"></div>
 
     <script>
-        const displayModal = (title, body, footer='', color='bg-indigo-500') => {
-            const modal = $(`#modal`)[0]
-            const titleContainer = $('#modal-title').closest('div')
-
-            $(titleContainer).removeClass('bg-indigo-500 bg-red-500').addClass(color);
-
-            $(`#modal-title`).text(title)
-            $(`#modal-content`).html(body)
-            $(`#modal-close-btn`).before(footer)
-
-            modal.showModal()
-        }
-
-        const closeModal = () => {
-            const modal = $(`#modal`)[0]
-            const closeBtn = $(`#modal-close-btn`)
-
-            $(`#modal-title`).text('')
-            $(`#modal-content`).html('')
-            $(`#modal-footer`).html(closeBtn)
-            modal.close()
-        }
-
-        const clearPaginationLinks = () => {
-            $('#pages-container button').remove()
-        }
-
-        const regeneratePaginationLinks = (links) => {
-            clearPaginationLinks()
-            const btnContainer = $("#pages-container")
-
-            links.forEach(link => {
-                let btnText = link.label.replace("&laquo;", "").replace("&raquo;", "")
-                const btn = $("<button>")
-                    .addClass("text-black p-1 border border-gray-500 min-w-fit px-4 rounded-lg m-2")
-                    .addClass(link.active ? "bg-gray-300" : "bg-white");
-
-                if (link.url) {
-                    btn.addClass("page-btn").attr("url", link.url)
-                }
-
-                btn.text(btnText);
-                btnContainer.append(btn)
-            });
-        }
-
         const clearAirlinesTable = () => {
             $('tr[airline-id]').remove()
         }
@@ -80,19 +34,6 @@
             clearAirlinesTable()
             airlines.forEach(airline => addRowInAirlinesTable(airline))
             regeneratePaginationLinks(retrieved.links)
-        }
-
-        const getInputValues = (...inputNames) => {
-            let values = []
-
-            for (const name of inputNames) {
-                const node = $(`input[name=${name}]`)
-                if (node) {
-                    values.push($(node).val())
-                }
-            }
-
-            return values
         }
 
         const addRowInAirlinesTable = (airline) => {
@@ -116,6 +57,35 @@
                 </td>
             </tr>`
             )
+        }
+
+        const getAirlineFromInputs = (name, description) => {
+            const [inputName, inputDesc] = getInputValues(name, description)
+
+            const airline = {
+                name: inputName.trim(),
+                description: inputDesc.trim()
+            }
+
+            return airline
+        }
+
+        const handleAirlineEditErrors = (errors) => {
+            const nameInput = $('input[name="edit-name"]')
+            const descInput = $('input[name="edit-description"]')
+
+            $('.modal-edit-error').remove()
+
+            if (Object.hasOwn(errors, 'name')) {
+            let nameErrors =
+                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.name.join(" ")}</p>`
+                $(nameInput).after(nameErrors)
+            }
+            if (Object.hasOwn(errors, 'description')) {
+                let descErrors =
+                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.description.join(" ")}</p>`
+                $(descInput).after(descErrors)
+            }
         }
 
         const makePost = async (url, data) => {
@@ -151,49 +121,6 @@
             })
         }
 
-        const parseErrors = (err) => {
-            const validationErrors = err.errors
-            let content = ''
-
-            messages = Object.values(validationErrors).flat()
-            messages.map(err => content += `<li>${err}</li>`)
-
-            return `<ul>${content}</ul>`
-        }
-
-        const getAirlineFromInputs = (name, description) => {
-            const [inputName, inputDesc] = getInputValues(name, description)
-
-            const airline = {
-                name: inputName.trim(),
-                description: inputDesc.trim()
-            }
-
-            return airline
-        }
-
-        const resetInputField = (name, value="") => {
-            $(`input[name="${name}"]`).val(value)
-        }
-
-        const handleEditErrors = (errors) => {
-            const nameInput = $('input[name="edit-name"]')
-            const descInput = $('input[name="edit-description"]')
-
-            $('.modal-edit-error').remove()
-
-            if (Object.hasOwn(errors, 'name')) {
-            let nameErrors =
-                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.name.join(" ")}</p>`
-                $(nameInput).after(nameErrors)
-            }
-            if (Object.hasOwn(errors, 'description')) {
-                let descErrors =
-                `<p class="modal-edit-error text-xs text-red-500 mb-3">${errors.description.join(" ")}</p>`
-                $(descInput).after(descErrors)
-            }
-        }
-
         const createAirline = async () => {
             const newAirline = getAirlineFromInputs("name", "description")
 
@@ -207,7 +134,6 @@
 
             resetInputField("name")
             resetInputField("description")
-
 
             populateAirlinesTable()
         }
@@ -233,7 +159,7 @@
 
             if (! response.ok) {
                 const errors = (await response.json()).errors
-                return handleEditErrors(errors)
+                return handleAirlineEditErrors(errors)
             }
 
             populateAirlinesTable()
@@ -241,7 +167,7 @@
             return closeModal()
         }
 
-        const handleDeleteButton = (target) => {
+        const showModalOnDelete = (target) => {
             const id = target.closest("tr").firstElementChild.textContent
             const name = target.closest("tr").children[1].textContent
 
@@ -259,7 +185,7 @@
             displayModal("Warning", warningMessage, deleteBtn, "bg-red-500")
         }
 
-        const handleEditButton = (target) => {
+        const showModalOnEdit = (target) => {
             const currentRow = target.closest("tr")
 
             const id = currentRow.firstElementChild.textContent
@@ -291,27 +217,32 @@
             return displayModal("Edit Airline", inputs, updateBtn)
         }
 
-        const colorTableHeadersOnSort = () => {
+        const colorAirlineTableHeadersOnSort = () => {
             const queryParams = new URLSearchParams(window.location.search);
             const sortOrder = queryParams.get("sort_by")
 
             if (sortOrder === "name") {
-                $("#col-name").toggleClass("bg-gray-100")
+                $("#col-name").addClass("bg-gray-100")
                 $("#col-id").removeClass("bg-gray-100")
             } else {
-                $("#col-id").toggleClass("bg-gray-100")
+                $("#col-id").addClass("bg-gray-100")
                 $("#col-name").removeClass("bg-gray-100")
             }
         }
 
+        const sortAirlineTable = (columnName) => sortTableBy(columnName, "airlines", () => {
+            colorAirlineTableHeadersOnSort()
+            populateAirlinesTable()
+        })
+
         $(document).ready(() => {
 
-          colorTableHeadersOnSort()
+          colorAirlineTableHeadersOnSort()
           populateAirlinesTable()
 
-          $("table").on("click", ".edit-btn", (event) => handleEditButton(event.target))
+          $("table").on("click", ".edit-btn", (event) => showModalOnEdit(event.target))
 
-          $("table").on("click", ".del-btn", (event) => handleDeleteButton(event.target))
+          $("table").on("click", ".del-btn", (event) => showModalOnDelete(event.target))
 
           $("#create-button").on("click", createAirline)
 
@@ -334,31 +265,9 @@
                 populateAirlinesTable()
           })
 
-          $("#col-id").click(() => {
-            let queryParams = new URLSearchParams(window.location.search);
-            queryParams.set("sort_by", "id")
+          $("#col-id").click(() => sortAirlineTable("id"))
 
-            const currentOrder = queryParams.get("asc")
-            queryParams.set("asc", currentOrder === "false")
-
-            history.pushState(null, "", "airlines?" + queryParams.toString())
-
-            colorTableHeadersOnSort()
-            populateAirlinesTable()
-          })
-
-          $("#col-name").click(() => {
-            let queryParams = new URLSearchParams(window.location.search);
-            queryParams.set("sort_by", "name")
-
-            const currentOrder = queryParams.get("asc")
-            queryParams.set("asc", currentOrder === "false")
-
-            history.pushState(null, "", "airlines?" + queryParams.toString())
-
-            colorTableHeadersOnSort()
-            populateAirlinesTable()
-          })
+          $("#col-name").click(() => sortAirlineTable("name"))
 
           $("#city-filter").change((event) => {
             let queryParams = new URLSearchParams(window.location.search);
