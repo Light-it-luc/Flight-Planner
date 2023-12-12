@@ -3,6 +3,7 @@
     <x-modal />
 
     <div class="max-w-6xl m-auto mt-8">
+        <x-cities-dropdown />
         <div class="overflow-x-auto relative">
             <x-table
             :tableName="'Airlines'" :columnTitles="['ID', 'Name', 'Description', 'Flights']"
@@ -150,7 +151,6 @@
             })
         }
 
-
         const parseErrors = (err) => {
             const validationErrors = err.errors
             let content = ''
@@ -291,26 +291,40 @@
             return displayModal("Edit Airline", inputs, updateBtn)
         }
 
+        const colorTableHeadersOnSort = () => {
+            const queryParams = new URLSearchParams(window.location.search);
+            const sortOrder = queryParams.get("sort_by")
+
+            if (sortOrder === "name") {
+                $("#col-name").toggleClass("bg-gray-100")
+                $("#col-id").removeClass("bg-gray-100")
+            } else {
+                $("#col-id").toggleClass("bg-gray-100")
+                $("#col-name").removeClass("bg-gray-100")
+            }
+        }
+
         $(document).ready(() => {
 
-            populateAirlinesTable()
+          colorTableHeadersOnSort()
+          populateAirlinesTable()
 
-            $("table").on("click", ".edit-btn", (event) => handleEditButton(event.target))
+          $("table").on("click", ".edit-btn", (event) => handleEditButton(event.target))
 
-            $("table").on("click", ".del-btn", (event) => handleDeleteButton(event.target))
+          $("table").on("click", ".del-btn", (event) => handleDeleteButton(event.target))
 
-            $("#create-button").on("click", createAirline)
+          $("#create-button").on("click", createAirline)
 
-            $("#modal").on("click", "#modal-close-btn", closeModal)
+          $("#modal").on("click", "#modal-close-btn", closeModal)
 
-            $("#modal").on("click", "#modal-delete-btn", () => {
+          $("#modal").on("click", "#modal-delete-btn", () => {
                 const airlineId = $(`dialog input[name="_id"]`).val()
                 return deleteAirline(airlineId)
-            })
+          })
 
-            $("#modal").on("click", "#modal-edit-btn", (event) => editAirline(event.target))
+          $("#modal").on("click", "#modal-edit-btn", (event) => editAirline(event.target))
 
-            $('#pages-container').on("click", ".page-btn", (event) => {
+          $('#pages-container').on("click", ".page-btn", (event) => {
                 const queryParams = $(event.target)
                 .attr("url")
                 .split("?")[1]
@@ -321,9 +335,6 @@
           })
 
           $("#col-id").click(() => {
-            $("#col-id").toggleClass("bg-gray-100 rounded-lg")
-            $("#col-name").removeClass("bg-gray-100")
-
             let queryParams = new URLSearchParams(window.location.search);
             queryParams.set("sort_by", "id")
 
@@ -331,13 +342,12 @@
             queryParams.set("asc", currentOrder === "false")
 
             history.pushState(null, "", "airlines?" + queryParams.toString())
+
+            colorTableHeadersOnSort()
             populateAirlinesTable()
           })
 
           $("#col-name").click(() => {
-            $("#col-name").toggleClass("bg-gray-100 rounded-lg")
-            $("#col-id").removeClass("bg-gray-100")
-
             let queryParams = new URLSearchParams(window.location.search);
             queryParams.set("sort_by", "name")
 
@@ -345,9 +355,19 @@
             queryParams.set("asc", currentOrder === "false")
 
             history.pushState(null, "", "airlines?" + queryParams.toString())
+
+            colorTableHeadersOnSort()
+            populateAirlinesTable()
+          })
+
+          $("#city-filter").change((event) => {
+            let queryParams = new URLSearchParams(window.location.search);
+            const selected = $(event.target).find("option:selected").attr("city-id")
+
+            queryParams.set("city", selected)
+            history.pushState(null, "", `airlines?${queryParams.toString()}`)
             populateAirlinesTable()
           })
         })
     </script>
 </x-layout>
-

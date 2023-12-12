@@ -178,7 +178,7 @@
             }
         }
 
-        $(document).ready(function (e) {
+        $(document).ready(() => {
 
           $.ajaxSetup({
             headers: {
@@ -216,8 +216,8 @@
               })
           })
 
-          $('table').on('click', 'button.edit-btn', () => {
-              const [id, name, country] = getCellsInRow($(this).closest('tr'))
+          $('table').on('click', 'button.edit-btn', (event) => {
+              const [id, name, country] = getCellsInRow($(event.target).closest('tr'))
                 .map(cell => $(cell).text())
 
               const content = `
@@ -277,8 +277,8 @@
             })
           })
 
-          $('table').on('click', 'button.del-btn', () => {
-            const [id, name, country] = getCellsInRow($(this).closest('tr'))
+          $('table').on('click', 'button.del-btn', (event) => {
+            const [id, name, country] = getCellsInRow($(event.target).closest('tr'))
                 .map(cell => $(cell).text())
 
             const content = `
@@ -287,7 +287,7 @@
             `
             const confirmBtn = `
                 <button id="modal-delete-btn"
-                    class="bg-red-500 hover:bg-indigo-300 text-white
+                    class="bg-red-500 hover:bg-red-300 text-white
                     font-semibold py-2 px-4 text-white rounded-xl mx-2"
                     >Confirm</button>
               `
@@ -363,13 +363,12 @@
 
           $("#airline-filter").change((event) => {
             let queryParams = new URLSearchParams(window.location.search);
-            const selected = $(event.target)).find("option:selected").attr("city-id")
+            const selected = $(event.target).find("option:selected").attr("airline-id")
 
             queryParams.set("airline", selected)
             history.pushState(null, "", `cities?${queryParams.toString()}`)
             populateCitiesTable()
           })
-
         })
       </script>
 </x-layout>
