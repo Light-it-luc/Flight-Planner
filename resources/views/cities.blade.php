@@ -3,6 +3,7 @@
     <x-modal/>
 
     <div class="max-w-6xl m-auto mt-8">
+        <x-airlines-dropdown/>
         <div class="overflow-x-auto relative">
 
         <x-table
@@ -158,6 +159,25 @@
             $('#pages-container button').remove()
         }
 
+        const colorTableHeadersOnSort = () => {
+            const queryParams = new URLSearchParams(window.location.search);
+            const sortOrder = queryParams.get("sort_by")
+
+            if (sortOrder === "name") {
+                $("#col-name").toggleClass("bg-gray-100")
+                $("#col-country").removeClass("bg-gray-100")
+                $("#col-id").removeClass("bg-gray-100")
+            } else if(sortOrder === "country") {
+                $("#col-country").toggleClass("bg-gray-100")
+                $("#col-name").removeClass("bg-gray-100")
+                $("#col-id").removeClass("bg-gray-100")
+            } else {
+                $("#col-id").toggleClass("bg-gray-100")
+                $("#col-name").removeClass("bg-gray-100")
+                $("#col-country").removeClass("bg-gray-100")
+            }
+        }
+
         $(document).ready(function (e) {
 
           $.ajaxSetup({
@@ -166,11 +186,12 @@
             }
           })
 
+          colorTableHeadersOnSort()
           populateCitiesTable()
 
-          $('#modal').on('click', '#modal-close-btn', () => closeModal())
+          $('#modal').on('click', '#modal-close-btn', closeModal)
 
-          $('table').on('click', '#create-button', function() {
+          $('table').on('click', '#create-button', () => {
               const city = {
                   name: $('input[name="name"]').val().trim(),
                   country: $('input[name="country"]').val().trim()
@@ -195,7 +216,7 @@
               })
           })
 
-          $('table').on('click', 'button.edit-btn', function () {
+          $('table').on('click', 'button.edit-btn', () => {
               const [id, name, country] = getCellsInRow($(this).closest('tr'))
                 .map(cell => $(cell).text())
 
@@ -232,7 +253,7 @@
               displayModal('Edit City', content, submitBtn)
           })
 
-          $('#modal').on('click', '#modal-edit-btn', function() {
+          $('#modal').on('click', '#modal-edit-btn', () => {
 
             const [id, name, country] = getInputValues('_id', 'edit-name', 'edit-country')
 
@@ -256,7 +277,7 @@
             })
           })
 
-          $('table').on('click', 'button.del-btn', function () {
+          $('table').on('click', 'button.del-btn', () => {
             const [id, name, country] = getCellsInRow($(this).closest('tr'))
                 .map(cell => $(cell).text())
 
@@ -273,7 +294,7 @@
             displayModal('Warning', content, confirmBtn, 'bg-red-500')
           })
 
-          $('#modal').on('click', '#modal-delete-btn', function() {
+          $('#modal').on('click', '#modal-delete-btn', () => {
             const [id] = getInputValues("_id")
 
             $.ajax({
@@ -302,9 +323,6 @@
           })
 
           $("#col-id").click(() => {
-            $("#col-id").toggleClass("bg-gray-100 rounded-lg")
-            $("#col-name").removeClass("bg-gray-100")
-
             let queryParams = new URLSearchParams(window.location.search);
             queryParams.set("sort_by", "id")
 
@@ -312,13 +330,12 @@
             queryParams.set("asc", currentOrder === "false")
 
             history.pushState(null, "", "cities?" + queryParams.toString())
+
+            colorTableHeadersOnSort()
             populateCitiesTable()
           })
 
           $("#col-name").click(() => {
-            $("#col-name").toggleClass("bg-gray-100 rounded-lg")
-            $("#col-id").removeClass("bg-gray-100")
-
             let queryParams = new URLSearchParams(window.location.search);
             queryParams.set("sort_by", "name")
 
@@ -326,8 +343,33 @@
             queryParams.set("asc", currentOrder === "false")
 
             history.pushState(null, "", "cities?" + queryParams.toString())
+
+            colorTableHeadersOnSort()
             populateCitiesTable()
           })
+
+          $("#col-country").click(() => {
+            let queryParams = new URLSearchParams(window.location.search);
+            queryParams.set("sort_by", "country")
+
+            const currentOrder = queryParams.get("asc")
+            queryParams.set("asc", currentOrder === "false")
+
+            history.pushState(null, "", "cities?" + queryParams.toString())
+
+            colorTableHeadersOnSort()
+            populateCitiesTable()
+          })
+
+          $("#airline-filter").change((event) => {
+            let queryParams = new URLSearchParams(window.location.search);
+            const selected = $(event.target)).find("option:selected").attr("city-id")
+
+            queryParams.set("airline", selected)
+            history.pushState(null, "", `cities?${queryParams.toString()}`)
+            populateCitiesTable()
+          })
+
         })
       </script>
 </x-layout>

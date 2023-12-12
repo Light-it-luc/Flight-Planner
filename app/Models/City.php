@@ -28,7 +28,7 @@ class City extends Model
 
     public function scopeOrder(Builder $query, ?string $sortBy, bool $ascending): void
     {
-        $allowedColumns = ['id', 'name'];
+        $allowedColumns = ['id', 'name', 'country'];
         $order = $ascending ? 'asc' : 'desc' ;
 
         $sortBy = in_array($sortBy, $allowedColumns)? $sortBy: 'id';
