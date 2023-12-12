@@ -17,7 +17,6 @@
     <div id="pages-container" class="mt-12 mb-4 px-12"></div>
 
     <script>
-
         const populateCitiesTable = () => {
             let queryParams = new URLSearchParams(window.location.search);
 
@@ -139,7 +138,6 @@
                   data: city,
                   dataType: 'json',
                   success: function(data) {
-
                       $('input[name="name"]').val('')
                       $('input[name="country"]').val('')
 
@@ -177,8 +175,8 @@
                                 placeholder-gray-300 rounded-lg">
                         </div>
                     </div>
-                </div>
-              `
+                </div>`
+
               const submitBtn = `
                 <button id="modal-edit-btn"
                     class="bg-indigo-500 hover:bg-indigo-300 text-white font-semibold py-2 px-4
