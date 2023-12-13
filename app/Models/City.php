@@ -26,21 +26,18 @@ class City extends Model
         return $this->belongsToMany(Airline::class);
     }
 
-    public function scopeOrder(Builder $query, ?string $sortBy, bool $ascending): void
+    public function scopeOrder(Builder $query, string $sortBy, bool $ascending): void
     {
-        $allowedColumns = ['id', 'name', 'country'];
         $order = $ascending ? 'asc' : 'desc' ;
-
-        $sortBy = in_array($sortBy, $allowedColumns)? $sortBy: 'id';
 
         $query->orderBy($sortBy, $order);
     }
 
     public function scopeFilter(Builder $query, array $filters): void
     {
-        $query->when($filters['airline'] ?? false, function($query, $airline) {
-            $query->whereHas('airlines', function($query) use($airline) {
-                $query->where('airline_id', $airline);
+        $query->when($filters['airline'] ?? false, function($query, $airlineId) {
+            $query->whereHas('airlines', function($query) use($airlineId) {
+                $query->where('airline_id', $airlineId);
             });
         });
     }

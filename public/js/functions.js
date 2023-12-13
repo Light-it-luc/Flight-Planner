@@ -39,8 +39,7 @@ const resetInputField = (name, value="") => {
     $(`input[name="${name}"]`).val(value)
 }
 
-const parseErrorMessages = (error) => {
-    const validationErrors = error.responseJSON.errors
+const parseErrorMessages = (validationErrors) => {
     let content = ''
 
     const messages = Object.values(validationErrors).flat()

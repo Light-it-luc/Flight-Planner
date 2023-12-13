@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GetAirlinesRequest;
 use App\Http\Requests\StoreAirlineRequest;
 use App\Http\Requests\UpdateAirlineRequest;
 use App\Models\Airline;
@@ -10,16 +11,19 @@ use Illuminate\Http\Request;
 
 class AirlineController extends Controller
 {
-    public function index(Request $request)
+    public function index(GetAirlinesRequest $request)
     {
         $sortBy = $request->input('sort_by', 'id');
         $ascending = $request->boolean('asc', true);
 
+        $cityId = $request->input('city');
+        $airlineId = $request->input('flights');
+
         return Airline::with('cities')
             ->withCount('flights')
             ->order($sortBy, $ascending)
-            ->filterByCity($request->input('city'))
-            ->filterByFlights($request->input('flights'))
+            ->filterByCity($cityId)
+            ->filterByFlights($airlineId)
             ->paginate(10)
             ->withQueryString();
     }

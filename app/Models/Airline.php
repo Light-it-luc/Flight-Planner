@@ -21,21 +21,18 @@ class Airline extends Model
         return $this->belongsToMany(City::class);
     }
 
-    public function scopeOrder(Builder $query, ?string $sortBy, bool $ascending): void
+    public function scopeOrder(Builder $query, string $sortBy, bool $ascending): void
     {
-        $allowedColumns = ['id', 'name'];
         $order = $ascending ? 'asc' : 'desc';
-
-        $sortBy = in_array($sortBy, $allowedColumns)? $sortBy: 'id';
 
         $query->orderBy($sortBy, $order);
     }
 
-    public function scopeFilterByCity(Builder $query, ?string $city): void
+    public function scopeFilterByCity(Builder $query, ?int $cityId): void
     {
-        $query->when($city, function($query, $city) {
-            $query->whereHas('cities', function($query) use($city) {
-                $query->where('city_id', $city);
+        $query->when($cityId, function($query, $cityId) {
+            $query->whereHas('cities', function($query) use($cityId) {
+                $query->where('city_id', $cityId);
             });
         });
     }

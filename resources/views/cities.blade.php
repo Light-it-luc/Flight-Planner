@@ -28,7 +28,8 @@
                     regeneratePaginationLinks(response.links)
                 },
                 error: function(err) {
-                    return displayModal("Error", "Something happened when trying to populate table", "", "bg-red-500")
+                    const content = parseErrorMessages(err.responseJSON.errors)
+                    return displayModal("Error", content, "", "bg-red-500")
                 }
             })
         }
@@ -144,7 +145,7 @@
                       populateCitiesTable()
                   },
                   error: function (err) {
-                    const content = parseErrorMessages(err)
+                    const content = parseErrorMessages(err.responseJSON.errors)
                     displayModal('Creation failed', content, '', 'bg-red-500')
                   }
               })
@@ -238,7 +239,7 @@
                     closeModal()
                 },
                 error: function (err) {
-                    const content = parseErrorMessages(err)
+                    const content = parseErrorMessages(err.responseJSON.errors)
                     displayModal('Edit Failed', content, '', 'bg-red-500')
                 }
             })
@@ -264,7 +265,12 @@
             let queryParams = new URLSearchParams(window.location.search);
             const selected = $(event.target).find("option:selected").attr("airline-id")
 
-            queryParams.set("airline", selected)
+            if (selected) {
+                queryParams.set("airline", selected)
+            } else {
+                queryParams.delete("airline")
+            }
+
             history.pushState(null, "", `cities?${queryParams.toString()}`)
             populateCitiesTable()
           })

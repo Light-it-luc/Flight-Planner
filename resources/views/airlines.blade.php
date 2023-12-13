@@ -22,10 +22,14 @@
         const populateAirlinesTable = async (page=1) => {
             let queryParams = new URLSearchParams(window.location.search);
 
-            const response = await fetch(`api/v1/airlines?${queryParams.toString()}`)
+            const response = await fetch(`api/v1/airlines?${queryParams.toString()}`, {
+                headers: {"Accept": "application/json"}
+            })
 
             if (! response.ok) {
-                return displayModal("Error", "Something happened when trying to populate table", "", "bg-red-500")
+                const err = await response.json()
+                const content = parseErrorMessages(err.errors)
+                return displayModal("Error", content, "", "bg-red-500")
             }
 
             const retrieved = await response.json()
@@ -127,8 +131,8 @@
             const response = await makePost("api/v1/airlines", newAirline)
 
             if (! response.ok) {
-                const errors = await response.json()
-                const content = parseErrors(errors)
+                const err = await response.json()
+                const content = parseErrorMessages(err.errors)
                 return displayModal("Creation Failed", content, "", "bg-red-500")
             }
 
@@ -260,7 +264,6 @@
                 .attr("url")
                 .split("?")[1]
 
-                console.log(queryParams)
                 history.pushState(null, "", "airlines?" + queryParams)
                 populateAirlinesTable()
           })
@@ -273,7 +276,12 @@
             let queryParams = new URLSearchParams(window.location.search);
             const selected = $(event.target).find("option:selected").attr("city-id")
 
-            queryParams.set("city", selected)
+            if (selected) {
+                queryParams.set("city", selected)
+            } else {
+                queryParams.delete("city")
+            }
+
             history.pushState(null, "", `airlines?${queryParams.toString()}`)
             populateAirlinesTable()
           })

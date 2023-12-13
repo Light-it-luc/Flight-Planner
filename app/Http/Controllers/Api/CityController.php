@@ -3,20 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GetCitiesRequest;
 use App\Http\Requests\StoreCityRequest;
 use App\Models\City;
 use Illuminate\Http\Request;
 
 class CityController extends Controller
 {
-    public function index(Request $request)
+    public function index(GetCitiesRequest $request)
     {
         $sortBy = $request->input('sort_by', 'id');
         $ascending = $request->boolean('asc', true);
 
+        $airlineId = $request->only(['airline']);
+
         return City::withCount(['flightsTo', 'flightsFrom'])
             ->order($sortBy, $ascending)
-            ->filter($request->only(['airline']))
+            ->filter($airlineId)
             ->paginate(10)
             ->withQueryString();
     }
