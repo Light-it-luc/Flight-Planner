@@ -40,14 +40,16 @@
 
         const addRowInCityTable = (city) => {
             const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
+            const incomingFlights = city.flights_to_count ? city.flights_to_count : '0'
+            const outgoingFlights = city.flights_from_count? city.flights_from_count: '0'
 
             $('tbody').append(
                 `<tr city-id=${city.id} class="bg-white border-b border-gray-100">
                     <td class="py-4 px-6">${city.id}</td>
                     <td class="py-4 px-6">${city.name}</td>
                     <td class="py-4 px-6">${city.country}</td>
-                    <td class="py-4 px-6">0</td>
-                    <td class="py-4 px-6">0</td>
+                    <td class="py-4 px-6">${incomingFlights}</td>
+                    <td class="py-4 px-6">${outgoingFlights}</td>
                     <td class="py-4 px-6">
                     <div id="btn-container" class="flex flex-row">
                         <button id="${city.id}"

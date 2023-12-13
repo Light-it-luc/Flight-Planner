@@ -42,13 +42,14 @@
 
         const addRowInAirlinesTable = (airline) => {
             const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
+            const flights = airline.flights_count ? airline.flights_count : '0'
 
             $('tbody').append(
             `<tr airline-id=${airline.id} class="bg-white border-b border-gray-100">
                 <td class="py-4 px-6">${airline.id}</td>
                 <td class="py-4 px-6">${airline.name}</td>
                 <td class="py-4 px-6">${airline.description}</td>
-                <td class="py-4 px-6">0</td>
+                <td class="py-4 px-6">${flights}</td>
                 <td class="py-4 px-6">
                 <div id="btn-container" class="flex flex-row">
                     <button id="${airline.id}"
