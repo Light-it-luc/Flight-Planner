@@ -6,8 +6,22 @@
         <x-cities-dropdown />
         <div class="overflow-x-auto relative">
             <x-table
-            :tableName="'Airlines'" :columnTitles="['ID', 'Name', 'Description', 'Flights']"
-            :firstInput="'name'" :secondInput="'description'">
+            :tableName="'Airlines'" :columnTitles="['ID', 'Name', 'Description', 'Flights']">
+
+            <tr id="create-row" class="bg-white border-b border-gray-100">
+                <td class="py-4 px-6"></td>
+                <td class="py-4 px-6">
+                    <x-input :name="'name'"></x-input>
+                </td>
+                <td class="py-4 px-6">
+                    <x-input :name="'description'"></x-input>
+                </td>
+                <td class="py-4 px-6"></td>
+                <td class="py-4 px-6">
+                    <x-button id="create-button" class="dark:bg-gray-500 hover:bg-gray-400">Create</x-button>
+                </td>
+            </tr>
+
             </x-table>
         </div>
     </div>

@@ -7,8 +7,22 @@
         <div class="overflow-x-auto relative">
 
         <x-table
-        :tableName="'Cities'" :columnTitles="['ID', 'Name', 'Country', 'Incoming Flights', 'Outgoing Flights']"
-        :firstInput="'name'" :secondInput="'country'">
+        :tableName="'Cities'" :columnTitles="['ID', 'Name', 'Country', 'Incoming Flights', 'Outgoing Flights']">
+        <tr id="create-row" class="bg-white border-b border-gray-100">
+            <td class="py-4 px-6"></td>
+            <td class="py-4 px-6">
+                <x-input :name="'name'"></x-input>
+            </td>
+            <td class="py-4 px-6">
+                <x-input :name="'country'"></x-input>
+            </td>
+            <td class="py-4 px-6"></td>
+            <td class="py-4 px-6"></td>
+            <td class="py-4 px-6">
+                <x-button id="create-button" class="dark:bg-gray-500 hover:bg-gray-400">Create</x-button>
+            </td>
+        </tr>
+
         </x-table>
 
         </div>
