@@ -2,23 +2,26 @@
 
     <x-modal/>
 
-    <div class="max-w-7xl m-auto mt-8">
+    <div id="app" class="max-w-7xl m-auto mt-8">
+
+        <flight-filters></flight-filters>
+
         <div class="overflow-x-auto relative">
 
         <x-table
         :tableName="'Flights'"
         :columnTitles="['Flight Number', 'Origin', 'Destination', 'Departure', 'Arrival']">
 
-        <tr id="create-row" class="bg-white border-b border-gray-100">
-            <td class="py-4 px-6"></td>
-            <td class="py-4 px-6"></td>
-            <td class="py-4 px-6"></td>
-            <td class="py-4 px-6"></td>
-            <td class="py-4 px-6"></td>
-            <td class="py-4 px-6">
-                <x-button id="create-button" class="dark:bg-gray-500 hover:bg-gray-400">Create</x-button>
-            </td>
-        </tr>
+            <tr id="create-row" class="bg-white border-b border-gray-100">
+                <td class="py-4 px-6"></td>
+                <td class="py-4 px-6"></td>
+                <td class="py-4 px-6"></td>
+                <td class="py-4 px-6"></td>
+                <td class="py-4 px-6"></td>
+                <td class="py-4 px-6">
+                    <x-button id="create-button" class="dark:bg-gray-500 hover:bg-gray-400">Create</x-button>
+                </td>
+            </tr>
 
         </x-table>
 
@@ -96,18 +99,17 @@
         }
 
         $(document).ready(() => {
-            $('.select2').select2();
+            $('.select2').select2()
 
             populateFlightsTable()
 
             $('#pages-container').on("click", ".page-btn", (event) => {
-            const queryParams = $(event.target)
-              .attr("url")
-              .split("?")[1]
+                const queryParams = $(event.target)
+                .attr("url")
+                .split("?")[1]
 
-            history.pushState(null, "", `flights?${queryParams.toString()}`)
-            populateFlightsTable()
-
+                history.pushState(null, "", `flights?${queryParams}`)
+                populateFlightsTable()
           })
         })
     </script>

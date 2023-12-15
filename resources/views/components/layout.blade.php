@@ -10,6 +10,9 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script src="{{ asset('/js/functions.js') }}"></script>
 
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <title>{{ isset($title) ? $title : 'Flight Planner'; }}</title>
 </head>
 
