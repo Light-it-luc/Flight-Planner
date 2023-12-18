@@ -39,7 +39,10 @@ class Airline extends Model
 
     public function scopeFilterByFlights(Builder $query, ?int $flights): void
     {
-        $query->when(isset($flights), function ($query) use ($flights) {
+        $hasFlightsCount = collect($query->getQuery()->columns)->contains('flights_count');
+
+        $query->when(isset($flights), function ($query) use ($flights, $hasFlightsCount) {
+            $query->when($hasFlightsCount, fn($query) => $query->withCount('flights'));
             $query->having('flights_count', '=', $flights);
         });
     }
