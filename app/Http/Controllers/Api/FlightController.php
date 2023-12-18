@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class FlightController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         return Flight::with(['airline', 'origin', 'destination'])
             ->paginate(10)

@@ -6,12 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\GetCitiesRequest;
 use App\Http\Requests\StoreCityRequest;
 use App\Models\City;
-use Illuminate\Http\Request;
 
 class CityController extends Controller
 {
     public function index(GetCitiesRequest $request)
     {
+        $all = $request->boolean('all', false);
+
+        if ($all) {
+            return City::select('id', 'name', 'country')
+                ->orderBy('name')
+                ->get();
+        }
+
         $sortBy = $request->input('sort_by', 'id');
         $ascending = $request->boolean('asc', true);
 

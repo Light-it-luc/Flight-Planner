@@ -20,12 +20,12 @@
         },
 
         created() {
-            axios.get("api/v1/cities")
-            .then(res => this.cities = res.data.data)
+            axios.get("api/v1/cities?all=true")
+            .then(res => this.cities = res.data)
             .catch(err => console.log(err))
 
-            axios.get("api/v1/airlines")
-            .then(res => this.airlines = res.data.data)
+            axios.get("api/v1/airlines?all=true")
+            .then(res => this.airlines = res.data)
             .catch(err => console.log(err))
         },
 
@@ -59,7 +59,7 @@
             },
 
             allAirlines() {
-                const all = { id: 0, name:"All Airlines", description:"" }
+                const all = { id: 0, name:"All Airlines" }
                 return [all, ...this.airlines]
             }
         }

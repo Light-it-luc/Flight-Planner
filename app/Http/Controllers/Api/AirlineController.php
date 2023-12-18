@@ -7,12 +7,19 @@ use App\Http\Requests\GetAirlinesRequest;
 use App\Http\Requests\StoreAirlineRequest;
 use App\Http\Requests\UpdateAirlineRequest;
 use App\Models\Airline;
-use Illuminate\Http\Request;
 
 class AirlineController extends Controller
 {
     public function index(GetAirlinesRequest $request)
     {
+        $all = $request->boolean('all', false);
+
+        if ($all) {
+            return Airline::select('id', 'name')
+                ->orderBy('name')
+                ->get();
+        }
+
         $sortBy = $request->input('sort_by', 'id');
         $ascending = $request->boolean('asc', true);
 
