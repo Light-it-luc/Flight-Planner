@@ -17,13 +17,13 @@ class AirlineController extends Controller
         $ascending = $request->boolean('asc', true);
 
         $cityId = $request->input('city');
-        $airlineId = $request->input('flights');
+        $numberOfFlights = $request->input('flights');
 
         return Airline::with('cities')
             ->withCount('flights')
             ->order($sortBy, $ascending)
             ->filterByCity($cityId)
-            ->filterByFlights($airlineId)
+            ->filterByFlights($numberOfFlights)
             ->paginate(10)
             ->withQueryString();
     }
