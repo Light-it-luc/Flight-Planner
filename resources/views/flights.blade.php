@@ -11,18 +11,6 @@
         <x-table
         :tableName="'Flights'"
         :columnTitles="['Flight Number', 'Origin', 'Destination', 'Departure', 'Arrival']">
-
-            <tr id="create-row" class="bg-white border-b border-gray-100">
-                <td class="py-4 px-6"></td>
-                <td class="py-4 px-6"></td>
-                <td class="py-4 px-6"></td>
-                <td class="py-4 px-6"></td>
-                <td class="py-4 px-6"></td>
-                <td class="py-4 px-6">
-                    <x-button id="create-button" class="dark:bg-gray-500 hover:bg-gray-400">Create</x-button>
-                </td>
-            </tr>
-
         </x-table>
 
         </div>
@@ -55,6 +43,46 @@
         }
 
         // New functions here
+        const getSelectedValue = (selectId) => {
+            return $(`#${selectId}`).find(":selected").val()
+        }
+
+        const updateQueryParams = (filters) => {
+            let queryParams = new URLSearchParams(window.location.search);
+
+            const mappings = {
+                originId: 'origin',
+                destId: 'destination',
+                airlineId: 'airline',
+                departure: 'departure',
+                arrival: 'arrival'
+            }
+
+            for (const [key, value] of Object.entries(filters)) {
+                if (value) {
+                    const queryParamKey = mappings[key]
+                    queryParams.set(queryParamKey, value)
+                } else {
+                    const queryParamKey = mappings[key]
+                    queryParams.delete(queryParamKey)
+                }
+            }
+
+            history.pushState(null, "", `flights?${queryParams.toString()}`)
+        }
+
+        const getAirlineFilters = () => {
+            const filters = {
+                originId:Number(getSelectedValue("select-origin")),
+                destId: Number(getSelectedValue("select-destination")),
+                airlineId: Number(getSelectedValue("select-airline")),
+                departure: $("#select-departure").val(),
+                arrival: $("#select-arrival").val()
+            }
+
+            return filters
+        }
+
         const clearFlightsTable = () => {
             $('tr[flight-id]').remove()
         }
@@ -99,11 +127,17 @@
         }
 
         $(document).ready(() => {
-            $('.select2').select2()
+            $(".select2").select2()
 
             populateFlightsTable()
 
-            $('#pages-container').on("click", ".page-btn", (event) => {
+            $("#filter-button").click(() => {
+                const filters = getAirlineFilters()
+                updateQueryParams(filters)
+                populateFlightsTable()
+            })
+
+            $("#pages-container").on("click", ".page-btn", (event) => {
                 const queryParams = $(event.target)
                 .attr("url")
                 .split("?")[1]
