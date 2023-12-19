@@ -14,7 +14,7 @@ class CityController extends Controller
         $all = $request->boolean('all', false);
 
         if ($all) {
-            return City::select('id', 'name', 'country')
+            return City::with('airlines')
                 ->orderBy('name')
                 ->get();
         }

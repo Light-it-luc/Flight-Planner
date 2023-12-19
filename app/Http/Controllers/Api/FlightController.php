@@ -10,13 +10,6 @@ class FlightController extends Controller
 {
     public function index(GetFlightsRequest $request)
     {
-        $all = $request->boolean('all', false);
-
-        if ($all) {
-            return Flight::select('id', 'flight_number', 'origin_city_id', 'dest_city_id', 'airline_id')
-                ->get();
-        }
-
         $sortBy = $request->input('sort_by', 'id');
         $asc = $request->boolean('asc', true);
 
