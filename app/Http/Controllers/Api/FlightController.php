@@ -37,4 +37,9 @@ class FlightController extends Controller
             ->paginate(10)
             ->withQueryString();
     }
+
+    public function destroy(Flight $flight)
+    {
+        return $flight->delete();
+    }
 }

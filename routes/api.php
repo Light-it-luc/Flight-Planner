@@ -46,4 +46,5 @@ Route::group([
     'controller' => FlightController::class
 ], static function () {
     Route::get('/', 'index');
+    Route::delete('/{flight}', 'destroy');
 });

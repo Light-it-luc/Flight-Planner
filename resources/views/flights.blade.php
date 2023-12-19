@@ -19,6 +19,29 @@
     <div id="pages-container" class="mt-12 mb-4 px-12"></div>
 
     <script>
+        const displayModal = (title, body, footer='', color='bg-indigo-500') => {
+            const modal = $(`#modal`)[0]
+            const titleContainer = $('#modal-title').closest('div')
+
+            $(titleContainer).removeClass('bg-indigo-500 bg-red-500').addClass(color);
+
+            $(`#modal-title`).text(title)
+            $(`#modal-content`).html(body)
+            $(`#modal-close-btn`).before(footer)
+
+            modal.showModal()
+        }
+
+        const closeModal = () => {
+            const modal = $(`#modal`)[0]
+            const closeBtn = $(`#modal-close-btn`)
+
+            $(`#modal-title`).text('')
+            $(`#modal-content`).html('')
+            $(`#modal-footer`).html(closeBtn)
+            modal.close()
+        }
+
         const regeneratePaginationLinks = (links) => {
             clearPaginationLinks()
             const btnContainer = $("#pages-container")
@@ -40,6 +63,19 @@
 
         const clearPaginationLinks = () => {
             $('#pages-container button').remove()
+        }
+
+        const getInputValues = (...inputNames) => {
+            let values = []
+
+            for (const name of inputNames) {
+                const node = $(`input[name=${name}]`)
+                if (node) {
+                    values.push($(node).val())
+                }
+            }
+
+            return values
         }
 
         // New functions here
@@ -131,11 +167,49 @@
 
             populateFlightsTable()
 
+            $('#modal').on('click', '#modal-close-btn', closeModal)
+
             $("#filter-button").click(() => {
                 const filters = getAirlineFilters()
                 updateQueryParams(filters)
                 populateFlightsTable()
             })
+
+            $("tbody").on("click", ".del-btn", (event) => {
+                const row = $(event.target).closest("tr")
+                const flightId = $(row).attr("flight-id")
+                const flightNumber = $(row)
+                    .children("td")
+                    .first()
+                    .text()
+
+
+                const content = `
+                <input type="hidden" name="_id" value="${flightId}" />
+                <p>Are you sure you want to delete flight ${flightNumber}</p>
+                `
+
+                const confirmBtn = `
+                <button id="modal-delete-btn"
+                    class="bg-red-500 hover:bg-red-300 text-white
+                    font-semibold py-2 px-4 text-white rounded-xl mx-2"
+                >Confirm</button>
+              `
+
+                return displayModal("Warning", content, confirmBtn, "bg-red-500")
+            })
+
+            $("#modal").on("click", "#modal-delete-btn", function() {
+            const [id] = getInputValues("_id")
+
+            axios.delete(`api/v1/flights/${id}`)
+            .then(res => {
+                // Flash toast
+                populateFlightsTable()
+                closeModal()
+            })
+            .catch(err => console.log(err))
+          })
 
             $("#pages-container").on("click", ".page-btn", (event) => {
                 const queryParams = $(event.target)
