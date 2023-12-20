@@ -15,7 +15,7 @@
                 destinationCityId: 0,
                 airlineId: 0,
                 departure: null,
-                arrival: null
+                arrival: null,
             }
         },
 
@@ -42,7 +42,7 @@
 
             updateEndDate(date) {
                 this.arrival = date
-            }
+            },
         },
 
         computed: {
@@ -102,6 +102,9 @@
             selectBoxId="select-airline"
         ></objects-dropdown>
 
+    </div>
+
+    <div class="flex flex-row mx-20">
         <date-input
             title="Departure"
             :startDate="null"
@@ -117,14 +120,14 @@
             :updateDate="updateEndDate"
             selectBoxId="select-arrival"
         ></date-input>
-
         <div class="ml-6 pt-8">
             <button
                 id="filter-button"
                 class="font-semibold text-white dark:bg-gray-500 hover:bg-gray-400
-                w-20 py-1 px-2 rounded-xl"
+                w-20 py-1 px-2 rounded-md"
             >Filter</button>
         </div>
     </div>
+
 
 </template>

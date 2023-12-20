@@ -21,7 +21,7 @@
         <label class="mb-2 pl-4 font-semibold text-gray-800" for="start">{{ title }}</label>
         <input
             :id="selectBoxId"
-            class="w-full text-ellipsis rounded-md"
+            class="w-full text-ellipsis border border-gray-300 rounded-md"
             type="date"
             v-model="selectedDate"
             :min="startDate"

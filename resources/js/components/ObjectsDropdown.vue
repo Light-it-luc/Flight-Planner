@@ -1,8 +1,12 @@
 <script>
+    import Multiselect from '@vueform/multiselect'
+
     export default {
+        components: { Multiselect },
+
         data() {
             return {
-                selectedValue: this.selectedId
+                selectedOption: this.selectedId
             }
         },
 
@@ -10,35 +14,34 @@
             title: String,
             objects: Array,
             selectedId: Number,
-            selectBoxId: String
+            selectBoxId: String,
         },
 
         methods: {
             handleSelectChange() {
-                this.$emit('update:selectedId', this.selectedValue)
+                this.$emit('update:selectedId', this.selectedOption)
+            },
+
+            handleClearSelect() {
+                this.selectedOption = 0
+                this.handleSelectChange()
             }
         }
     }
 </script>
 
 <template>
-    <div class="flex flex-col mx-4 mb-8">
+    <div class="flex flex-col mx-4 mb-4 w-56">
         <h3 class="mb-2 pl-4 font-semibold text-gray-800">{{ title }}</h3>
-        <select
-            :id="selectBoxId"
-            class="select2 w-32 h-160 text-ellipsis rounded-md"
-            v-model="selectedValue"
-            @change="handleSelectChange"
-        >
-
-            <option
-                v-for="obj in objects"
-                :key="obj.id"
-                :value="obj.id"
-
-            >{{ obj.name }}</option>
-
-        </select>
-
+        <multiselect
+            v-model="selectedOption"
+            :options="objects"
+            label="name"
+            valueProp="id"
+            @select="handleSelectChange"
+            @clear="handleClearSelect"
+        />
     </div>
 </template>
+
+<style src="@vueform/multiselect/themes/default.css"></style>
