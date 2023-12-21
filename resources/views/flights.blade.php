@@ -79,8 +79,35 @@
         }
 
         // New functions here
-        const getSelectedValue = (selectId) => {
-            return $(`#${selectId}`).find(":selected").val()
+        const getSelectedId = (selectBoxId) => {
+            const selectedLi = $(`${selectBoxId} #undefined-dropdown ul .is-selected`)
+            const multiselectId = $(selectedLi).attr("id")
+
+            if (multiselectId) {
+                return multiselectId.split('-')[2]
+            }
+
+            return '0'
+        }
+
+        const getFilters = () => {
+            return {
+                originId: Number(getSelectedId("#select-origin")),
+                destId: Number(getSelectedId("#select-destination")),
+                airlineId: Number(getSelectedId("#select-airlines")),
+                departure: $('#select-departure').val(),
+                arrival: $("#select-arrival").val()
+            }
+        }
+
+        const getCreateInputs = () => {
+            return {
+                originId: Number(getSelectedId("#vue-modal #select-origin")),
+                destId: Number(getSelectedId("#vue-modal #select-destination")),
+                airlineId: Number(getSelectedId("#vue-modal #select-airline")),
+                departure: $('#vue-modal #select-departure-dt').val(),
+                arrival: $("#vue-modal #select-arrival-dt").val()
+            }
         }
 
         const updateQueryParams = (filters) => {
@@ -105,18 +132,6 @@
             }
 
             history.pushState(null, "", `flights?${queryParams.toString()}`)
-        }
-
-        const getAirlineFilters = () => {
-            const filters = {
-                originId:Number(getSelectedValue("select-origin")),
-                destId: Number(getSelectedValue("select-destination")),
-                airlineId: Number(getSelectedValue("select-airline")),
-                departure: $("#select-departure").val(),
-                arrival: $("#select-arrival").val()
-            }
-
-            return filters
         }
 
         const clearFlightsTable = () => {
@@ -163,14 +178,25 @@
         }
 
         $(document).ready(() => {
-            $(".select2").select2()
-
             populateFlightsTable()
 
-            $('#modal').on('click', '#modal-close-btn', closeModal)
+            $("#modal").on("click", "#modal-close-btn", closeModal)
+
+            $("#create-button").click(() => {
+                $("#vue-modal")[0].showModal()
+            })
+
+            $("#vue-modal").on("click", "#modal-close-btn", () => {
+                $("#vue-modal")[0].close()
+            })
+
+            $("#vue-modal").on("click", "#modal-submit-btn", () => {
+                const values = getCreateInputs()
+                console.log(values)
+            })
 
             $("#filter-button").click(() => {
-                const filters = getAirlineFilters()
+                const filters = getFilters()
                 updateQueryParams(filters)
                 populateFlightsTable()
             })
@@ -199,17 +225,17 @@
                 return displayModal("Warning", content, confirmBtn, "bg-red-500")
             })
 
-            $("#modal").on("click", "#modal-delete-btn", function() {
-            const [id] = getInputValues("_id")
+            $("#modal").on("click", "#modal-delete-btn", () => {
+                const [id] = getInputValues("_id")
 
-            axios.delete(`api/v1/flights/${id}`)
-            .then(res => {
-                // Flash toast
-                populateFlightsTable()
-                closeModal()
+                axios.delete(`api/v1/flights/${id}`)
+                .then(res => {
+                    // Flash toast
+                    populateFlightsTable()
+                    closeModal()
+                })
+                .catch(err => console.log(err))
             })
-            .catch(err => console.log(err))
-          })
 
             $("#pages-container").on("click", ".page-btn", (event) => {
                 const queryParams = $(event.target)

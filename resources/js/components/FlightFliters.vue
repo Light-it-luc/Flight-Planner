@@ -1,11 +1,12 @@
 <script>
     import ObjectsDropdown from './ObjectsDropdown.vue';
     import DateInput from './DateInput.vue';
+    import Modal from './Modal.vue';
     import axios from 'axios';
 
     export default {
 
-        components: { ObjectsDropdown, DateInput },
+        components: { ObjectsDropdown, DateInput, Modal },
 
         data() {
             return {
@@ -80,7 +81,19 @@
 
 <template>
 
+    <modal
+        :airlines="airlines"
+        :cities="cities"
+    ></modal>
+
     <div class="flex flex-row mx-20">
+        <objects-dropdown
+            title="Airlines"
+            :objects="allAirlines"
+            v-model:selectedId="airlineId"
+            selectBoxId="select-airline"
+        ></objects-dropdown>
+
         <objects-dropdown
             title="Origin"
             :objects="allowedOrigins"
@@ -94,14 +107,6 @@
             v-model:selectedId="destinationCityId"
             selectBoxId="select-destination"
         ></objects-dropdown>
-
-        <objects-dropdown
-            title="Airlines"
-            :objects="allAirlines"
-            v-model:selectedId="airlineId"
-            selectBoxId="select-airline"
-        ></objects-dropdown>
-
     </div>
 
     <div class="flex flex-row mx-20">
@@ -120,14 +125,20 @@
             :updateDate="updateEndDate"
             selectBoxId="select-arrival"
         ></date-input>
+
         <div class="ml-6 pt-8">
             <button
                 id="filter-button"
                 class="font-semibold text-white dark:bg-gray-500 hover:bg-gray-400
                 w-20 py-1 px-2 rounded-md"
             >Filter</button>
+
+            <button
+                id="create-button"
+                class="ml-4 font-semibold text-white dark:bg-gray-500 hover:bg-gray-400
+                w-20 py-1 px-2 rounded-md"
+            >Create</button>
         </div>
     </div>
-
 
 </template>

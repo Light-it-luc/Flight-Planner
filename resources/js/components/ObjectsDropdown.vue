@@ -31,11 +31,12 @@
 </script>
 
 <template>
-    <div class="flex flex-col mx-4 mb-4 w-56">
+    <div :id="`select-${title.toLowerCase()}`" class="flex flex-col mx-4 mb-4 w-56">
         <h3 class="mb-2 pl-4 font-semibold text-gray-800">{{ title }}</h3>
         <multiselect
             v-model="selectedOption"
             :options="objects"
+            :searchable="true"
             label="name"
             valueProp="id"
             @select="handleSelectChange"
