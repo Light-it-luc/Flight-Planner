@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -39,10 +40,10 @@ class Airline extends Model
 
     public function scopeFilterByFlights(Builder $query, ?int $flights): void
     {
-        $hasFlightsCount = collect($query->getQuery()->columns)->contains('flights_count');
+        $hasFlightsCount = Str::contains($query->getQuery()->toSql(), 'flights_count');
 
         $query->when(isset($flights), function ($query) use ($flights, $hasFlightsCount) {
-            $query->when($hasFlightsCount, fn($query) => $query->withCount('flights'));
+            $query->when(! $hasFlightsCount, fn($query) => $query->withCount('flights'));
             $query->having('flights_count', '=', $flights);
         });
     }
