@@ -102,11 +102,11 @@
 
         const getCreateInputs = () => {
             return {
-                originId: Number(getSelectedId("#vue-modal #select-origin")),
-                destId: Number(getSelectedId("#vue-modal #select-destination")),
-                airlineId: Number(getSelectedId("#vue-modal #select-airline")),
-                departure: $('#vue-modal #select-departure-dt').val(),
-                arrival: $("#vue-modal #select-arrival-dt").val()
+                origin_city_id: Number(getSelectedId("#vue-modal #select-origin")),
+                dest_city_id: Number(getSelectedId("#vue-modal #select-destination")),
+                airline_id: Number(getSelectedId("#vue-modal #select-airline")),
+                departure_at: $('#vue-modal #select-departure-dt').val().replace("T", " "),
+                arrival_at: $("#vue-modal #select-arrival-dt").val().replace("T", " ")
             }
         }
 
@@ -192,7 +192,17 @@
 
             $("#vue-modal").on("click", "#modal-submit-btn", () => {
                 const values = getCreateInputs()
-                console.log(values)
+                const headers = {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+
+                axios.post("api/v1/flights", values, headers)
+                    .then(res => {
+                        alert(`Success! Flight ${res.data.flight_number} was created.`)
+                        clearFlightsTable()
+                        populateFlightsTable()
+                    })
+                    .catch(err => console.log(err))
             })
 
             $("#filter-button").click(() => {

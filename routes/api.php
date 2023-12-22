@@ -46,5 +46,6 @@ Route::group([
     'controller' => FlightController::class
 ], static function () {
     Route::get('/', 'index');
+    Route::post('/', 'store');
     Route::delete('/{flight}', 'destroy');
 });
