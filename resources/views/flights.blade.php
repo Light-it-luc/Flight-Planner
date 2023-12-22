@@ -1,10 +1,8 @@
 <x-layout :title="'Flights'">
 
-    <x-modal/>
-
     <div id="app" class="max-w-7xl m-auto mt-8">
 
-        <flight-filters></flight-filters>
+        <global-flights></global-flights>
 
         <div class="overflow-x-auto relative">
 
@@ -19,7 +17,7 @@
     <div id="pages-container" class="mt-12 mb-4 px-12"></div>
 
     <script>
-        const displayModal = (title, body, footer='', color='bg-indigo-500') => {
+        /* const displayModal = (title, body, footer='', color='bg-indigo-500') => {
             const modal = $(`#modal`)[0]
             const titleContainer = $('#modal-title').closest('div')
 
@@ -255,7 +253,7 @@
                 history.pushState(null, "", `flights?${queryParams}`)
                 populateFlightsTable()
           })
-        })
+        }) */
     </script>
 </x-layout>
 

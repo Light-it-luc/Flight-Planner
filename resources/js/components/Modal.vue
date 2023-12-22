@@ -7,6 +7,7 @@
 
         data() {
             return {
+                dialog: null,
                 airlineId: null,
                 originId: null,
                 destinationId: null,
@@ -16,8 +17,14 @@
         },
 
         props: {
+            show: Boolean,
+            title: String,
             airlines: Array,
             cities: Array,
+        },
+
+        mounted() {
+            this.dialog = this.$refs.dialog
         },
 
         computed: {
@@ -48,17 +55,34 @@
             airlineId(oldValue, newValue) {
                 this.originId = 0
                 this.destinationId = 0
+            },
+
+            show(newValue) {
+                if (newValue) {
+                    this.dialog.showModal()
+                } else {
+                    this.closeModal()
+                }
+
+                this.$emit('update:show', newValue)
+            }
+        },
+
+        methods: {
+            closeModal() {
+                this.airlineId = 0
+                this.dialog.close()
             }
         }
     }
 </script>
 
 <template>
-    <dialog id="vue-modal" class="w-2/5 border rounded-lg">
+    <dialog id="vue-modal" class="w-2/5 border rounded-lg" ref="dialog">
     <div>
         <!-- Modal Header -->
         <div class="text-white px-4 py-2 flex justify-between rounded-lg bg-indigo-500">
-            <h2 id="modal-title" class="text-lg font-semibold">Create Flight</h2>
+            <h2 id="modal-title" class="text-lg font-semibold">{{ title }}</h2>
         </div>
 
         <!-- Modal Body -->
@@ -116,6 +140,7 @@
             <button
                 id="modal-close-btn"
                 class="bg-gray-600 hover:bg-gray-400 text-white font-semibold py-2 px-4 text-white rounded-xl w-1/4 mx-1"
+                @click="show = false"
             >Close</button>
         </div>
     </div>

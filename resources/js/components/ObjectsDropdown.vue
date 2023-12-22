@@ -6,7 +6,7 @@
 
         data() {
             return {
-                selectedOption: 0
+                //selectedOption: 0
             }
         },
 
@@ -14,15 +14,16 @@
             title: String,
             objects: Array,
             selectBoxId: String,
+            selectedId: Number
         },
 
         methods: {
             handleSelectChange() {
-                this.$emit('update:selectedId', this.selectedOption)
+                this.$emit('update:selectedId', this.selectedId)
             },
 
             handleClearSelect() {
-                this.selectedOption = 0
+                this.selectedId = 0
                 this.handleSelectChange()
             }
         }
@@ -33,7 +34,7 @@
     <div :id="`select-${title.toLowerCase()}`" class="flex flex-col mx-4 mb-4 w-56">
         <h3 class="mb-2 pl-4 font-semibold text-gray-800">{{ title }}</h3>
         <multiselect
-            v-model="selectedOption"
+            v-model="selectedId"
             :options="objects"
             :searchable="true"
             label="name"

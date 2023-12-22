@@ -1,17 +1,13 @@
 <script>
     import ObjectsDropdown from './ObjectsDropdown.vue';
     import DateInput from './DateInput.vue';
-    import Modal from './Modal.vue';
-    import axios from 'axios';
 
     export default {
 
-        components: { ObjectsDropdown, DateInput, Modal },
+        components: { ObjectsDropdown, DateInput },
 
         data() {
             return {
-                cities: [],
-                airlines: [],
                 originCityId: 0,
                 destinationCityId: 0,
                 airlineId: 0,
@@ -20,14 +16,9 @@
             }
         },
 
-        created() {
-            axios.get("api/v1/cities?all=true")
-            .then(res => this.cities = res.data)
-            .catch(err => console.log(err))
-
-            axios.get("api/v1/airlines?all=true")
-            .then(res => this.airlines = res.data)
-            .catch(err => console.log(err))
+        props: {
+            airlines: Array,
+            cities: Array
         },
 
         computed: {
@@ -77,12 +68,6 @@
 </script>
 
 <template>
-
-    <modal
-        :airlines="airlines"
-        :cities="cities"
-    ></modal>
-
     <div class="flex flex-row mx-20">
         <objects-dropdown
             title="Airlines"
@@ -127,14 +112,8 @@
             <button
                 id="filter-button"
                 class="font-semibold text-white dark:bg-gray-500 hover:bg-gray-400
-                w-20 py-1 px-2 rounded-md"
-            >Filter</button>
-
-            <button
-                id="create-button"
-                class="ml-4 font-semibold text-white dark:bg-gray-500 hover:bg-gray-400
-                w-20 py-1 px-2 rounded-md"
-            >Create</button>
+                w-32 py-1 px-2 rounded-md"
+            >Apply Filters</button>
         </div>
     </div>
 
