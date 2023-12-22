@@ -15,17 +15,12 @@
                 links: [],
                 modalShow: false,
                 modalTitle: '',
-                queryParams: new URLSearchParams(window.location.search),
+                queryParams: null
             }
         },
 
         created() {
-            axios.get(`api/v1/flights?${this.queryParams.toString()}`)
-            .then(res => {
-                this.flights = res.data.data
-                this.links = res.data.links
-            })
-            .catch(err => console.log(err))
+            this.queryParams = (new URLSearchParams(window.location.search)).toString()
 
             axios.get("api/v1/cities?all=true")
             .then(res => this.cities = res.data)
@@ -40,6 +35,19 @@
             showCreateModal() {
                 this.modalTitle = 'Create New Flight'
                 this.modalShow = true
+            }
+        },
+
+        watch: {
+            queryParams(newValue) {
+                history.pushState(null, "", "?" + newValue)
+
+                axios.get(`api/v1/flights?${newValue}`)
+                .then(res => {
+                    this.flights = res.data.data
+                    this.links = res.data.links
+                })
+                .catch(err => console.log(err))
             }
         }
     }
@@ -64,15 +72,6 @@
     <flight-fliters
         :airlines="airlines"
         :cities="cities"
-    ></flight-fliters>
-
-    <!-- <table-component
-        :headings="..."
-        :flights="flights"
-    ></table-component> -->
-
-    <!-- <pagination-links
-        :links="links"
         v-model:queryParams="queryParams"
-    ></pagination-links> -->
+    ></flight-fliters>
 </template>

@@ -13,12 +13,14 @@
                 airlineId: 0,
                 departure: null,
                 arrival: null,
+                params: new URLSearchParams(window.location.search)
             }
         },
 
         props: {
             airlines: Array,
-            cities: Array
+            cities: Array,
+            queryParams: String
         },
 
         computed: {
@@ -59,9 +61,30 @@
         },
 
         watch: {
-            airlineId(newValue, oldValue) {
+            airlineId() {
                 this.originCityId = 0
                 this.destinationCityId = 0
+            }
+        },
+
+        methods: {
+            applyFilters() {
+                const filters = {
+                    origin: this.originCityId,
+                    destination: this.destinationCityId,
+                    airline: this.airlineId,
+                    departure: this.departure,
+                    arrival: this.arrival
+                }
+
+                for (const [key, value] of Object.entries(filters)) {
+                    if (value) {
+                        this.params.set(key, value)
+                    } else {
+                        this.params.delete(key)
+                    }
+                }
+                this.$emit('update:queryParams', this.params.toString())
             }
         }
     }
@@ -113,6 +136,7 @@
                 id="filter-button"
                 class="font-semibold text-white dark:bg-gray-500 hover:bg-gray-400
                 w-32 py-1 px-2 rounded-md"
+                @click="applyFilters"
             >Apply Filters</button>
         </div>
     </div>
