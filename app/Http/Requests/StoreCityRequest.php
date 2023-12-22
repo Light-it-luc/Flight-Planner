@@ -41,8 +41,8 @@ class StoreCityRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'The name of the city is required and cannot be an empty string',
-            'country.required' => 'The name of the country is required and cannot be an empty string',
+            'name.required' => 'The name of the city is required and cannot be an empty string.',
+            'country.required' => 'The name of the country is required and cannot be an empty string.',
             'country.unique' => 'This city already exists!'
         ];
     }

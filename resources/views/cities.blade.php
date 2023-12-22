@@ -3,6 +3,7 @@
     <x-modal/>
 
     <div class="max-w-6xl m-auto mt-8">
+        <x-airlines-dropdown/>
         <div class="overflow-x-auto relative">
 
         <x-table
@@ -16,27 +17,51 @@
     <div id="pages-container" class="mt-12 mb-4 px-12"></div>
 
     <script>
-        const displayModal = (title, body, footer='', color='bg-indigo-500') => {
-            const modal = $(`#modal`)[0]
-            const titleContainer = $('#modal-title').closest('div')
+        const populateCitiesTable = () => {
+            let queryParams = new URLSearchParams(window.location.search);
 
-            $(titleContainer).removeClass('bg-indigo-500 bg-red-500').addClass(color);
-
-            $(`#modal-title`).text(title)
-            $(`#modal-content`).html(body)
-            $(`#modal-close-btn`).before(footer)
-
-            modal.showModal()
+            $.ajax(`api/v1/cities?${queryParams.toString()}`, {
+                success: function(response) {
+                    const cities = response.data
+                    clearCitiesTable()
+                    cities.forEach(city => addRowInCityTable(city))
+                    regeneratePaginationLinks(response.links)
+                },
+                error: function(err) {
+                    const content = parseErrorMessages(err.responseJSON.errors)
+                    return displayModal("Error", content, "", "bg-red-500")
+                }
+            })
         }
 
-        const closeModal = () => {
-            const modal = $(`#modal`)[0]
-            const closeBtn = $(`#modal-close-btn`)
+        const clearCitiesTable = () => {
+            $('tr[city-id]').remove()
+        }
 
-            $(`#modal-title`).text('')
-            $(`#modal-content`).html('')
-            $(`#modal-footer`).html(closeBtn)
-            modal.close()
+        const addRowInCityTable = (city) => {
+            const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
+            const incomingFlights = city.flights_to_count ? city.flights_to_count : '0'
+            const outgoingFlights = city.flights_from_count? city.flights_from_count: '0'
+
+            $('tbody').append(
+                `<tr city-id=${city.id} class="bg-white border-b border-gray-100">
+                    <td class="py-4 px-6">${city.id}</td>
+                    <td class="py-4 px-6">${city.name}</td>
+                    <td class="py-4 px-6">${city.country}</td>
+                    <td class="py-4 px-6">${incomingFlights}</td>
+                    <td class="py-4 px-6">${outgoingFlights}</td>
+                    <td class="py-4 px-6">
+                    <div id="btn-container" class="flex flex-row">
+                        <button id="${city.id}"
+                                class="${btnClass} edit-btn dark:bg-indigo-600 hover:bg-indigo-400"
+                            >Edit</button>
+                        <button id="${city.id}"
+                                class="${btnClass} del-btn ml-2 dark:bg-red-600 hover:bg-red-400"
+                            >Delete</button>
+                    </div>
+                    </td>
+                </tr>`
+                )
         }
 
         const getCellsInRow = (row) => {
@@ -49,30 +74,7 @@
             return [id, name, country]
         }
 
-        const getInputValues = (...inputNames) => {
-            let values = []
-
-            for (const name of inputNames) {
-                const node = $(`input[name=${name}]`)
-                if (node) {
-                    values.push($(node).val())
-                }
-            }
-
-            return values
-        }
-
-        const parseErrorMessages = (error) => {
-          const validationErrors = error.responseJSON.errors
-          let content = ''
-
-          messages = Object.values(validationErrors).flat()
-          messages.map(err => content += `<li>${err}</li>`)
-
-          return `<ul>${content}</ul>`
-        }
-
-        const handleEditErrors = (errors) => {
+        const handleCityEditErrors = (errors) => {
             const nameInput = $('input[name="edit-name"]')
             const countryInput = $('input[name="edit-country"]')
 
@@ -90,74 +92,31 @@
             }
         }
 
-        const addRowInCityTable = (city) => {
-            const btnClass = 'text-white font-semibold py-2 px-4 text-white rounded-xl'
+        const colorCityTableHeadersOnSort = () => {
+            const queryParams = new URLSearchParams(window.location.search);
+            const sortOrder = queryParams.get("sort_by")
 
-            $('tbody').append(
-                `<tr city-id=${city.id} class="bg-white border-b border-gray-100">
-                    <td class="py-4 px-6">${city.id}</td>
-                    <td class="py-4 px-6">${city.name}</td>
-                    <td class="py-4 px-6">${city.country}</td>
-                    <td class="py-4 px-6">0</td>
-                    <td class="py-4 px-6">0</td>
-                    <td class="py-4 px-6">
-                    <div id="btn-container" class="flex flex-row">
-                        <button id="${city.id}"
-                                class="${btnClass} edit-btn dark:bg-indigo-600 hover:bg-indigo-400"
-                            >Edit</button>
-                        <button id="${city.id}"
-                                class="${btnClass} del-btn ml-2 dark:bg-red-600 hover:bg-red-400"
-                            >Delete</button>
-                    </div>
-                    </td>
-                </tr>`
-                )
+            if (sortOrder === "name") {
+                $("#col-name").addClass("bg-gray-100")
+                $("#col-country").removeClass("bg-gray-100")
+                $("#col-id").removeClass("bg-gray-100")
+            } else if(sortOrder === "country") {
+                $("#col-country").addClass("bg-gray-100")
+                $("#col-name").removeClass("bg-gray-100")
+                $("#col-id").removeClass("bg-gray-100")
+            } else {
+                $("#col-id").addClass("bg-gray-100")
+                $("#col-name").removeClass("bg-gray-100")
+                $("#col-country").removeClass("bg-gray-100")
+            }
         }
 
-        const regeneratePaginationLinks = (links) => {
-            clearPaginationLinks()
-            const btnContainer = $("#pages-container")
+        const sortCityTable = (columnName) => sortTableBy(columnName, "cities", () => {
+            colorCityTableHeadersOnSort()
+            populateCitiesTable()
+        })
 
-            links.forEach(link => {
-                let btnText = link.label.replace("&laquo;", "").replace("&raquo;", "")
-                const btn = $("<button>")
-                    .addClass("text-black p-1 border border-gray-500 min-w-fit px-4 rounded-lg m-2")
-                    .addClass(link.active ? "bg-gray-300" : "bg-white");
-
-                if (link.url) {
-                    btn.addClass("page-btn").attr("url", link.url)
-                }
-
-                btn.text(btnText);
-                btnContainer.append(btn)
-            });
-        }
-
-        const populateCitiesTable = () => {
-            let queryParams = new URLSearchParams(window.location.search);
-
-            $.ajax(`api/v1/cities?${queryParams.toString()}`, {
-                success: function(response) {
-                    const cities = response.data
-                    clearCitiesTable()
-                    cities.forEach(city => addRowInCityTable(city))
-                    regeneratePaginationLinks(response.links)
-                },
-                error: function(err) {
-                    return displayModal("Error", "Something happened when trying to populate table", "", "bg-red-500")
-                }
-            })
-        }
-
-        const clearCitiesTable = () => {
-            $('tr[city-id]').remove()
-        }
-
-        const clearPaginationLinks = () => {
-            $('#pages-container button').remove()
-        }
-
-        $(document).ready(function (e) {
+        $(document).ready(() => {
 
           $.ajaxSetup({
             headers: {
@@ -165,11 +124,12 @@
             }
           })
 
+          colorCityTableHeadersOnSort()
           populateCitiesTable()
 
-          $('#modal').on('click', '#modal-close-btn', () => closeModal())
+          $('#modal').on('click', '#modal-close-btn', closeModal)
 
-          $('table').on('click', '#create-button', function() {
+          $('table').on('click', '#create-button', () => {
               const city = {
                   name: $('input[name="name"]').val().trim(),
                   country: $('input[name="country"]').val().trim()
@@ -187,14 +147,14 @@
                       populateCitiesTable()
                   },
                   error: function (err) {
-                    const content = parseErrorMessages(err)
+                    const content = parseErrorMessages(err.responseJSON.errors)
                     displayModal('Creation failed', content, '', 'bg-red-500')
                   }
               })
           })
 
-          $('table').on('click', 'button.edit-btn', function () {
-              const [id, name, country] = getCellsInRow($(this).closest('tr'))
+          $('table').on('click', 'button.edit-btn', (event) => {
+              const [id, name, country] = getCellsInRow($(event.target).closest('tr'))
                 .map(cell => $(cell).text())
 
               const content = `
@@ -218,8 +178,8 @@
                                 placeholder-gray-300 rounded-lg">
                         </div>
                     </div>
-                </div>
-              `
+                </div>`
+
               const submitBtn = `
                 <button id="modal-edit-btn"
                     class="bg-indigo-500 hover:bg-indigo-300 text-white font-semibold py-2 px-4
@@ -229,7 +189,7 @@
               displayModal('Edit City', content, submitBtn)
           })
 
-          $('#modal').on('click', '#modal-edit-btn', function() {
+          $('#modal').on('click', '#modal-edit-btn', () => {
             const [id, name, country] = getInputValues('_id', 'edit-name', 'edit-country')
 
             const updateCity = {
@@ -247,13 +207,13 @@
                     closeModal()
                 },
                 error: function (err) {
-                    handleEditErrors(err.responseJSON.errors)
+                    handleCityEditErrors(err.responseJSON.errors)
                 }
             })
           })
 
-          $('table').on('click', 'button.del-btn', function () {
-            const [id, name, country] = getCellsInRow($(this).closest('tr'))
+          $('table').on('click', 'button.del-btn', (event) => {
+            const [id, name, country] = getCellsInRow($(event.target).closest('tr'))
                 .map(cell => $(cell).text())
 
             const content = `
@@ -262,14 +222,14 @@
             `
             const confirmBtn = `
                 <button id="modal-delete-btn"
-                    class="bg-red-500 hover:bg-indigo-300 text-white
+                    class="bg-red-500 hover:bg-red-300 text-white
                     font-semibold py-2 px-4 text-white rounded-xl mx-2"
                     >Confirm</button>
               `
             displayModal('Warning', content, confirmBtn, 'bg-red-500')
           })
 
-          $('#modal').on('click', '#modal-delete-btn', function() {
+          $('#modal').on('click', '#modal-delete-btn', () => {
             const [id] = getInputValues("_id")
 
             $.ajax({
@@ -281,7 +241,7 @@
                     closeModal()
                 },
                 error: function (err) {
-                    const content = parseErrorMessages(err)
+                    const content = parseErrorMessages(err.responseJSON.errors)
                     displayModal('Edit Failed', content, '', 'bg-red-500')
                 }
             })
@@ -292,9 +252,29 @@
               .attr("url")
               .split("?")[1]
 
-            history.pushState(null, "", "cities?" + queryParams)
+            history.pushState(null, "", "cities?" + queryParams.toString())
             populateCitiesTable()
 
+          })
+
+          $("#col-id").click(() => sortCityTable("id"))
+
+          $("#col-name").click(() => sortCityTable("name"))
+
+          $("#col-country").click(() => sortCityTable("country"))
+
+          $("#airline-filter").change((event) => {
+            let queryParams = new URLSearchParams(window.location.search);
+            const selected = $(event.target).find("option:selected").attr("airline-id")
+
+            if (selected) {
+                queryParams.set("airline", selected)
+            } else {
+                queryParams.delete("airline")
+            }
+
+            history.pushState(null, "", `cities?${queryParams.toString()}`)
+            populateCitiesTable()
           })
         })
       </script>
