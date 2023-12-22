@@ -2,7 +2,7 @@
     export default {
         data() {
             return {
-                selectedDate: null
+                selectedDate: this.date
             }
         },
 
@@ -12,6 +12,12 @@
             startDate: String | null,
             endDate: String | null,
             updateDate: Function
+        },
+
+        methods: {
+            handleDateChange() {
+                this.$emit('update:date', this.selectedDate)
+            }
         }
     }
 </script>
@@ -26,6 +32,6 @@
             v-model="selectedDate"
             :min="startDate"
             :max="endDate"
-            @change="updateDate(selectedDate)">
+            @change="handleDateChange">
     </div>
 </template>

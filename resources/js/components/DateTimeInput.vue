@@ -2,7 +2,7 @@
     export default {
         data() {
             return {
-                selectedDateTime: null,
+                selectedDateTime: this.date,
             }
         },
 
@@ -11,7 +11,12 @@
             selectBoxId: String,
             startDateTime: String | null,
             endDateTime: String | null,
-            updateFunction: Function
+        },
+
+        methods: {
+            handleDateTimeChange() {
+                this.$emit('update:date', this.selectedDateTime)
+            }
         }
     }
 </script>
@@ -26,7 +31,7 @@
             v-model="selectedDateTime"
             :min="startDateTime"
             :max="endDateTime"
-            @change="updateFunction(selectedDateTime)"
+            @change="handleDateTimeChange"
         >
     </div>
 </template>

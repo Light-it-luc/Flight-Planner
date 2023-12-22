@@ -20,21 +20,13 @@
             cities: Array,
         },
 
-        methods: {
-            updateStartDT(date) {
-                this.departureDateTime = date
-            },
-
-            updateEndDT(date) {
-                this.arrivalDateTime = date
-            }
-        },
-
         computed: {
             allowedOrigins() {
                 if (this.airlineId) {
                     const airline = this.airlines.find(item => item.id === this.airlineId)
-                    return airline.cities.filter(city => city.id !== this.destinationId)
+                    return airline.cities
+                        .filter(city => city.id !== this.destinationId)
+                        .sort((a, b) => a.name.localeCompare(b.name))
                 }
 
                 return this.cities.filter(city => city.id !== this.destinationId)
@@ -43,10 +35,19 @@
             allowedDestinations() {
                 if (this.airlineId) {
                     const airline = this.airlines.find(item => item.id === this.airlineId)
-                    return airline.cities.filter(city => city.id !== this.originId)
+                    return airline.cities
+                        .filter(city => city.id !== this.originId)
+                        .sort((a, b) => a.name.localeCompare(b.name))
                 }
 
                 return this.cities.filter(city => city.id !== this.originId)
+            }
+        },
+
+        watch: {
+            airlineId(oldValue, newValue) {
+                this.originId = 0
+                this.destinationId = 0
             }
         }
     }
@@ -93,7 +94,7 @@
                     selectBoxId="select-departure-dt"
                     :startDateTime="null"
                     :endDateTime="arrivalDateTime"
-                    :updateFunction="updateStartDT"
+                    v-model:date="departureDateTime"
                 ></date-time-input>
 
                 <date-time-input
@@ -101,11 +102,9 @@
                     selectBoxId="select-arrival-dt"
                     :startDateTime="departureDateTime"
                     :endDateTime="null"
-                    :updateFunction="updateEndDT"
+                    v-model:date="arrivalDateTime"
                 ></date-time-input>
-
             </div>
-
         </div>
 
         <!-- Modal Footer -->

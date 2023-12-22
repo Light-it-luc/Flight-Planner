@@ -30,29 +30,16 @@
             .catch(err => console.log(err))
         },
 
-        methods: {
-            updateAirline(newAirlineId) {
-                this.airlineId = newAirlineId
-                this.originCityId = 0
-                this.destinationCityId = 0
-            },
-
-            updateStartDate(date) {
-                this.departure = date
-            },
-
-            updateEndDate(date) {
-                this.arrival = date
-            },
-        },
-
         computed: {
             allowedOrigins() {
                 const allCities = { id: 0, name: "All Cities" }
 
                 if (this.airlineId) {
                     const selectedAirline = this.airlines.find(airline => airline.id === this.airlineId)
-                    const filteredCities = selectedAirline.cities.filter(city => city.id !== this.destinationCityId)
+                    const filteredCities = selectedAirline.cities
+                        .filter(city => city.id !== this.destinationCityId)
+                        .sort((a, b) => a.name.localeCompare(b.name))
+
                     return [allCities, ...filteredCities]
                 }
 
@@ -64,7 +51,10 @@
 
                 if (this.airlineId) {
                     const selectedAirline = this.airlines.find(airline => airline.id === this.airlineId)
-                    const filteredCities = selectedAirline.cities.filter(city => city.id !== this.originCityId)
+                    const filteredCities = selectedAirline.cities
+                        .filter(city => city.id !== this.originCityId)
+                        .sort((a, b) => a.name.localeCompare(b.name))
+
                     return [allCities, ...filteredCities]
                 }
 
@@ -74,6 +64,13 @@
             allAirlines() {
                 const all = { id: 0, name:"All Airlines" }
                 return [all, ...this.airlines]
+            }
+        },
+
+        watch: {
+            airlineId(newValue, oldValue) {
+                this.originCityId = 0
+                this.destinationCityId = 0
             }
         }
     }
@@ -114,7 +111,7 @@
             title="Departure"
             :startDate="null"
             :endDate="arrival"
-            :updateDate="updateStartDate"
+            v-model:date="departure"
             selectBoxId="select-departure"
         ></date-input>
 
@@ -122,7 +119,7 @@
             title="Arrival"
             :startDate="departure"
             :endDate="null"
-            :updateDate="updateEndDate"
+            v-model:date="arrival"
             selectBoxId="select-arrival"
         ></date-input>
 

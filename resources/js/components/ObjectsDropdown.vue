@@ -6,14 +6,13 @@
 
         data() {
             return {
-                selectedOption: this.selectedId
+                selectedOption: 0
             }
         },
 
         props: {
             title: String,
             objects: Array,
-            selectedId: Number,
             selectBoxId: String,
         },
 
