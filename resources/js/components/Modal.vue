@@ -18,9 +18,9 @@
 
         props: {
             show: Boolean,
-            title: String,
             airlines: Array,
             cities: Array,
+            params: Object
         },
 
         mounted() {
@@ -52,9 +52,14 @@
         },
 
         watch: {
-            airlineId(oldValue, newValue) {
-                this.originId = 0
-                this.destinationId = 0
+            params(newValue) {
+                this.airlineId = newValue.airlineId
+
+                this.originId =  newValue.originId
+                this.destinationId = newValue.destinationId
+
+                this.departureDateTime = newValue.departure
+                this.arrivalDateTime = newValue.arrival
             },
 
             show(newValue) {
@@ -70,7 +75,17 @@
 
         methods: {
             closeModal() {
-                this.airlineId = 0
+                const resetParams = {
+                    title: '',
+                    edit: false,
+                    originId: null,
+                    destinationId: null,
+                    airlineId: null,
+                    departure: null,
+                    arrival: null,
+                }
+
+                this.$emit("update:params", resetParams)
                 this.dialog.close()
             }
         }
@@ -82,7 +97,7 @@
     <div>
         <!-- Modal Header -->
         <div class="text-white px-4 py-2 flex justify-between rounded-lg bg-indigo-500">
-            <h2 id="modal-title" class="text-lg font-semibold">{{ title }}</h2>
+            <h2 id="modal-title" class="text-lg font-semibold">{{ params.title }}</h2>
         </div>
 
         <!-- Modal Body -->

@@ -2,7 +2,7 @@
     export default {
         data() {
             return {
-                selectedDateTime: this.date,
+                selectedDateTime: null,
             }
         },
 
@@ -11,11 +11,18 @@
             selectBoxId: String,
             startDateTime: String | null,
             endDateTime: String | null,
+            date: String | null
         },
 
         methods: {
             handleDateTimeChange() {
                 this.$emit('update:date', this.selectedDateTime)
+            }
+        },
+
+        watch: {
+            date(newValue) {
+                this.selectedDateTime = newValue
             }
         }
     }

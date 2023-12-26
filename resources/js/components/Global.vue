@@ -1,11 +1,13 @@
 <script>
     import FlightFliters from './FlightFliters.vue';
     import Modal from './Modal.vue';
+    import VueTable from './Table.vue';
+    import Links from './Links.vue';
     import axios from 'axios';
 
     export default {
 
-        components: { FlightFliters, Modal },
+        components: { FlightFliters, Modal, VueTable, Links },
 
         data() {
             return {
@@ -14,7 +16,15 @@
                 flights: [],
                 links: [],
                 modalShow: false,
-                modalTitle: '',
+                modalParams: {
+                    title: '',
+                    edit: false,
+                    originId: null,
+                    destinationId: null,
+                    airlineId: null,
+                    departure: null,
+                    arrival: null
+                },
                 queryParams: null
             }
         },
@@ -33,8 +43,31 @@
 
         methods: {
             showCreateModal() {
-                this.modalTitle = 'Create New Flight'
+                this.modalParams = {
+                    title: 'Create New Flight',
+                    edit: false,
+                    originId: null,
+                    destinationId: null,
+                    airlineId: null,
+                    departure: null,
+                    arrival: null
+                }
                 this.modalShow = true
+            },
+
+            showEditModal(flight) {
+                this.modalParams = {
+                    title: `Edit Flight ${flight.flight_number}`,
+                    edit: true,
+                    originId: flight.origin.id,
+                    destinationId: flight.destination.id,
+                    airlineId: flight.airline_id,
+                    departure: flight.departure_at.replace(" ", "T").slice(0, -3),
+                    arrival: flight.arrival_at.replace(" ", "T").slice(0, -3)
+                }
+
+                this.modalShow = true
+
             }
         },
 
@@ -58,7 +91,7 @@
         :airlines="airlines"
         :cities="cities"
         v-model:show="modalShow"
-        v-model:title="modalTitle"
+        v-model:params="modalParams"
     ></modal>
 
     <div class="my-8">
@@ -74,4 +107,16 @@
         :cities="cities"
         v-model:queryParams="queryParams"
     ></flight-fliters>
+
+    <vue-table
+        :flights="flights"
+        tableName="Flights"
+        :columnTitles="['Flight Number', 'Origin', 'Destination', 'Departure', 'Arrival']"
+        @edit-flight="showEditModal"
+    ></vue-table>
+
+    <links
+        :links="links"
+        v-model:queryParams="queryParams"
+    ></links>
 </template>
