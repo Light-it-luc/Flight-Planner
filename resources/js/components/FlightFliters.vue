@@ -117,18 +117,16 @@
     <div class="flex flex-row mx-20">
         <date-input
             title="Departure"
-            :startDate="null"
+            inputType="date"
             :endDate="arrival"
             v-model:date="departure"
-            selectBoxId="select-departure"
         ></date-input>
 
         <date-input
             title="Arrival"
+            :inputType="'date'"
             :startDate="departure"
-            :endDate="null"
             v-model:date="arrival"
-            selectBoxId="select-arrival"
         ></date-input>
 
         <div class="ml-6 pt-8">

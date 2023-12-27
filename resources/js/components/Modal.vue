@@ -1,9 +1,9 @@
 <script>
-    import DateTimeInput from './DateTimeInput.vue';
+    import DateInput from './DateInput.vue';
     import ObjectsDropdown from './ObjectsDropdown.vue';
 
     export default {
-        components: { ObjectsDropdown, DateTimeInput },
+        components: { ObjectsDropdown, DateInput },
 
         data() {
             return {
@@ -120,7 +120,7 @@
 </script>
 
 <template>
-    <dialog id="vue-modal" class="w-2/5 border rounded-lg" ref="dialog">
+    <dialog class="w-2/5 rounded-lg" ref="dialog">
     <div>
         <!-- Modal Header -->
         <div class="text-white px-4 py-2 flex justify-between rounded-lg bg-indigo-500">
@@ -172,13 +172,12 @@
             <!-- Select departure dateTime, & arrival dateTime -->
             <div class="flex flex-row">
                 <div class="flex flex-col">
-                    <date-time-input
+                    <date-input
                         title="Departure"
-                        selectBoxId="select-departure-dt"
-                        :startDateTime="null"
-                        :endDateTime="arrivalDateTime"
+                        inputType="datetime-local"
+                        :endDate="arrivalDateTime"
                         v-model:date="departureDateTime"
-                    ></date-time-input>
+                    ></date-input>
                     <p
                         class="text-xs text-red-500 pl-4 mb-2"
                         v-if="errors.departure_at"
@@ -186,13 +185,12 @@
                 </div>
 
                 <div class="flex flex-col">
-                    <date-time-input
+                    <date-input
                         title="Arrival"
-                        selectBoxId="select-arrival-dt"
-                        :startDateTime="departureDateTime"
-                        :endDateTime="null"
+                        inputType="datetime-local"
+                        :startDate="departureDateTime"
                         v-model:date="arrivalDateTime"
-                    ></date-time-input>
+                    ></date-input>
                     <p
                         class="text-xs text-red-500 pl-4 mb-2"
                         v-if="errors.arrival_at"
