@@ -32,8 +32,8 @@
                 <td class="py-4 px-6">{{ flight.flight_number }}</td>
                 <td class="py-4 px-6">{{ flight.origin.name }}</td>
                 <td class="py-4 px-6">{{ flight.destination.name }}</td>
-                <td class="py-4 px-6">{{ flight.departure_at }}</td>
-                <td class="py-4 px-6">{{ flight.arrival_at }}</td>
+                <td class="py-4 px-6">{{ flight.departure_at.slice(0, -3) }}</td>
+                <td class="py-4 px-6">{{ flight.arrival_at.slice(0, -3) }}</td>
                 <td class="py-4 px-6">
                     <div class="space-x-2">
                         <button class="edit-btn dark:bg-indigo-600 hover:bg-indigo-400 text-white
