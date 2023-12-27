@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\GetFlightsRequest;
 use App\Http\Requests\StoreFlightRequest;
 use App\Models\Flight;
-use Illuminate\Http\Request;
 
 class FlightController extends Controller
 {
@@ -38,6 +37,13 @@ class FlightController extends Controller
         $attribiutes = $request->validated();
 
         return Flight::create($attribiutes);
+    }
+
+    public function update(StoreFlightRequest $request, Flight $flight)
+    {
+        $attributes = $request->validated();
+
+        return $flight->update($attributes);
     }
 
     public function destroy(Flight $flight)
