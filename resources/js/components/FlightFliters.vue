@@ -1,9 +1,9 @@
 <script>
-    import ObjectsDropdown from './ObjectsDropdown.vue';
+    import Dropdown from './Dropdown.vue';
     import DateInput from './DateInput.vue';
 
     export default {
-        components: { ObjectsDropdown, DateInput },
+        components: { Dropdown, DateInput },
 
         data() {
             return {
@@ -66,6 +66,7 @@
                     airline: this.airlineId,
                     departure: this.departure,
                     arrival: this.arrival,
+                    page: null
                 }
 
                 const params = new URLSearchParams(window.location.search)
@@ -91,24 +92,24 @@
 
 <template>
     <div class="flex flex-row mx-20">
-        <objects-dropdown
+        <dropdown
             title="Airlines"
             :objects="allAirlines"
             v-model:selectedId="airlineId"
             @update:selectedId="resetCities"
-        ></objects-dropdown>
+        ></dropdown>
 
-        <objects-dropdown
+        <dropdown
             title="Origin"
             :objects="allowedOrigins"
             v-model:selectedId="originCityId"
-        ></objects-dropdown>
+        ></dropdown>
 
-        <objects-dropdown
+        <dropdown
             title="Destination"
             :objects="allowedDestinations"
             v-model:selectedId="destinationCityId"
-        ></objects-dropdown>
+        ></dropdown>
     </div>
 
     <div class="flex flex-row mx-20 mb-8">

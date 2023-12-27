@@ -2,12 +2,12 @@
     import FlightFliters from './FlightFliters.vue';
     import Modal from './Modal.vue';
     import VueTable from './Table.vue';
-    import Links from './Links.vue';
+    import PaginationLinks from './PaginationLinks.vue';
     import axios from 'axios';
 
     export default {
 
-        components: { FlightFliters, Modal, VueTable, Links },
+        components: { FlightFliters, Modal, VueTable, PaginationLinks },
 
         data() {
             return {
@@ -189,8 +189,8 @@
         @delete-flight="handleDeleteFlight"
     ></vue-table>
 
-    <links
+    <pagination-links
         :links="links"
         v-model:queryParams="queryParams"
-    ></links>
+    ></pagination-links>
 </template>

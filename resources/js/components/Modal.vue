@@ -1,9 +1,9 @@
 <script>
     import DateInput from './DateInput.vue';
-    import ObjectsDropdown from './ObjectsDropdown.vue';
+    import Dropdown from './Dropdown.vue';
 
     export default {
-        components: { ObjectsDropdown, DateInput },
+        components: { Dropdown, DateInput },
 
         data() {
             return {
@@ -136,12 +136,12 @@
         <div id="modal-content" class="p-4 border-b">
             <!-- Select Airline -->
             <div class="flex flex-col">
-                <objects-dropdown
+                <dropdown
                     title="Airline"
                     :objects="airlines"
                     v-model:selectedId="airlineId"
                     @update:selectedId="resetCities"
-                ></objects-dropdown>
+                ></dropdown>
                 <p
                     class="text-xs text-red-500 pl-4 mb-4"
                     v-if="errors.airline_id"
@@ -151,11 +151,11 @@
             <!-- Select Origin & Destination -->
             <div class="flex flex-row">
                 <div class="flex flex-col">
-                    <objects-dropdown
+                    <dropdown
                         title="Origin"
                         :objects="allowedOrigins"
                         v-model:selectedId="originId"
-                    ></objects-dropdown>
+                    ></dropdown>
                     <p
                         class="text-xs text-red-500 pl-4 mb-4"
                         v-if="errors.origin_city_id"
@@ -163,11 +163,11 @@
                 </div>
 
                 <div class="flex flex-col">
-                    <objects-dropdown
+                    <dropdown
                         title="Destination"
                         :objects="allowedDestinations"
                         v-model:selectedId="destinationId"
-                    ></objects-dropdown>
+                    ></dropdown>
                     <p
                         class="text-xs text-red-500 pl-4 mb-4"
                         v-if="errors.dest_city_id"

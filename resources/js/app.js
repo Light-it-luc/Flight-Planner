@@ -1,7 +1,7 @@
 import './bootstrap';
 import { createApp } from 'vue';
-import GlobalFlights from './components/Global.vue';
+import FlightsDashboard from './components/FlightsDashboard.vue';
 
 const app = createApp({});
-app.component('GlobalFlights', GlobalFlights);
+app.component('FlightsDashboard', FlightsDashboard);
 app.mount("#app");
