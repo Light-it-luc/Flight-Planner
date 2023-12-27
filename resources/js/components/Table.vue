@@ -38,10 +38,13 @@
                     <div class="space-x-2">
                         <button class="edit-btn dark:bg-indigo-600 hover:bg-indigo-400 text-white
                         font-semibold py-2 px-4 text-white rounded-xl"
-                        @click="$emit('editFlight', flight)"
+                        @click="$emit('editFlightModal', flight)"
                         >Edit</button>
+
                         <button class="edit-btn dark:bg-red-600 hover:bg-red-400 text-white
-                        font-semibold py-2 px-4 text-white rounded-xl">Delete</button>
+                        font-semibold py-2 px-4 text-white rounded-xl"
+                        @click="$emit('deleteFlight', flight)"
+                        >Delete</button>
                     </div>
                 </td>
             </tr>

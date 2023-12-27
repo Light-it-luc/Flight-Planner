@@ -74,7 +74,7 @@
                     destination: this.destinationCityId,
                     airline: this.airlineId,
                     departure: this.departure,
-                    arrival: this.arrival
+                    arrival: this.arrival,
                 }
 
                 for (const [key, value] of Object.entries(filters)) {

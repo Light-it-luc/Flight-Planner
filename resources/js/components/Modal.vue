@@ -12,7 +12,7 @@
                 originId: null,
                 destinationId: null,
                 departureDateTime: null,
-                arrivalDateTime: null
+                arrivalDateTime: null,
             }
         },
 
@@ -20,7 +20,8 @@
             show: Boolean,
             airlines: Array,
             cities: Array,
-            params: Object
+            params: Object,
+            errors: Object
         },
 
         mounted() {
@@ -78,6 +79,7 @@
                 const resetParams = {
                     title: '',
                     edit: false,
+                    flightId: null,
                     originId: null,
                     destinationId: null,
                     airlineId: null,
@@ -85,8 +87,33 @@
                     arrival: null,
                 }
 
+                const modalErrors = {
+                    airline_id: null,
+                    origin_city_id: null,
+                    dest_city_id: null,
+                    departure_at: null,
+                    arrival_at: null
+                }
+
                 this.$emit("update:params", resetParams)
+                this.$emit("update:errors", modalErrors)
                 this.dialog.close()
+            },
+
+            handleModalSubmit() {
+                const requestParams = {
+                    origin_city_id: this.originId,
+                    dest_city_id: this.destinationId,
+                    airline_id: this.airlineId,
+                    departure_at: (this.departureDateTime) ? this.departureDateTime.replace("T", " ") : null,
+                    arrival_at: (this.arrivalDateTime) ? this.arrivalDateTime.replace("T", " ") : null
+                }
+
+                if (this.params.edit) {
+                    this.$emit('editFlight', requestParams, this.params.flightId)
+                } else {
+                    this.$emit('createFlight', requestParams)
+                }
             }
         }
     }
@@ -109,40 +136,68 @@
                     :objects="airlines"
                     v-model:selectedId="airlineId"
                 ></objects-dropdown>
+                <p
+                    class="text-xs text-red-500 pl-4 mb-4"
+                    v-if="errors.airline_id"
+                >{{ errors.airline_id }}</p>
             </div>
 
             <!-- Select Origin & Destination -->
             <div class="flex flex-row">
-                <objects-dropdown
-                    title="Origin"
-                    :objects="allowedOrigins"
-                    v-model:selectedId="originId"
-                ></objects-dropdown>
+                <div class="flex flex-col">
+                    <objects-dropdown
+                        title="Origin"
+                        :objects="allowedOrigins"
+                        v-model:selectedId="originId"
+                    ></objects-dropdown>
+                    <p
+                        class="text-xs text-red-500 pl-4 mb-4"
+                        v-if="errors.origin_city_id"
+                    >{{ errors.origin_city_id }}</p>
+                </div>
 
-                <objects-dropdown
-                    title="Destination"
-                    :objects="allowedDestinations"
-                    v-model:selectedId="destinationId"
-                ></objects-dropdown>
+                <div class="flex flex-col">
+                    <objects-dropdown
+                        title="Destination"
+                        :objects="allowedDestinations"
+                        v-model:selectedId="destinationId"
+                    ></objects-dropdown>
+                    <p
+                        class="text-xs text-red-500 pl-4 mb-4"
+                        v-if="errors.dest_city_id"
+                    >{{ errors.dest_city_id }}</p>
+                </div>
             </div>
 
             <!-- Select departure dateTime, & arrival dateTime -->
             <div class="flex flex-row">
-                <date-time-input
-                    title="Departure"
-                    selectBoxId="select-departure-dt"
-                    :startDateTime="null"
-                    :endDateTime="arrivalDateTime"
-                    v-model:date="departureDateTime"
-                ></date-time-input>
+                <div class="flex flex-col">
+                    <date-time-input
+                        title="Departure"
+                        selectBoxId="select-departure-dt"
+                        :startDateTime="null"
+                        :endDateTime="arrivalDateTime"
+                        v-model:date="departureDateTime"
+                    ></date-time-input>
+                    <p
+                        class="text-xs text-red-500 pl-4 mb-2"
+                        v-if="errors.departure_at"
+                    >{{ errors.departure_at }}</p>
+                </div>
 
-                <date-time-input
-                    title="Arrival"
-                    selectBoxId="select-arrival-dt"
-                    :startDateTime="departureDateTime"
-                    :endDateTime="null"
-                    v-model:date="arrivalDateTime"
-                ></date-time-input>
+                <div class="flex flex-col">
+                    <date-time-input
+                        title="Arrival"
+                        selectBoxId="select-arrival-dt"
+                        :startDateTime="departureDateTime"
+                        :endDateTime="null"
+                        v-model:date="arrivalDateTime"
+                    ></date-time-input>
+                    <p
+                        class="text-xs text-red-500 pl-4 mb-2"
+                        v-if="errors.arrival_at"
+                    >{{ errors.arrival_at }}</p>
+                </div>
             </div>
         </div>
 
@@ -151,6 +206,7 @@
             <button
                 id="modal-submit-btn"
                 class="bg-indigo-600 hover:bg-indigo-400 text-white font-semibold py-2 px-4 text-white rounded-xl w-1/4 mx-1"
+                @click="handleModalSubmit"
             >Submit</button>
             <button
                 id="modal-close-btn"
