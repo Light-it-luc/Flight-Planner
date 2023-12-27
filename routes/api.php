@@ -47,5 +47,6 @@ Route::group([
 ], static function () {
     Route::get('/', 'index');
     Route::post('/', 'store');
+    Route::patch('/{flight}', 'update');
     Route::delete('/{flight}', 'destroy');
 });
