@@ -1,6 +1,7 @@
 <script>
     import DateInput from './DateInput.vue';
     import Dropdown from './Dropdown.vue';
+    import axios from 'axios';
 
     export default {
         components: { Dropdown, DateInput },
@@ -13,6 +14,13 @@
                 destinationId: null,
                 departureDateTime: null,
                 arrivalDateTime: null,
+                errors: {
+                    airline_id: null,
+                    origin_city_id: null,
+                    dest_city_id: null,
+                    departure_at: null,
+                    arrival_at: null
+                }
             }
         },
 
@@ -21,7 +29,6 @@
             airlines: Array,
             cities: Array,
             params: Object,
-            errors: Object
         },
 
         mounted() {
@@ -68,12 +75,27 @@
                     this.dialog.showModal()
                 } else {
                     this.closeModal()
-                    this.$emit('update:show', newValue)
                 }
             }
         },
 
         methods: {
+            resetCities(newAirlineId) {
+                this.airlineId = newAirlineId
+                this.originId = 0
+                this.destinationId = 0
+            },
+
+            clearModalErrors() {
+                this.errors = {
+                    airline_id: null,
+                    origin_city_id: null,
+                    dest_city_id: null,
+                    departure_at: null,
+                    arrival_at: null
+                }
+            },
+
             closeModal() {
                 const resetParams = {
                     title: '',
@@ -86,17 +108,42 @@
                     arrival: null,
                 }
 
-                const modalErrors = {
-                    airline_id: null,
-                    origin_city_id: null,
-                    dest_city_id: null,
-                    departure_at: null,
-                    arrival_at: null
-                }
+                this.clearModalErrors()
 
                 this.$emit("update:params", resetParams)
-                this.$emit("update:errors", modalErrors)
+                this.$emit('update:show', false)
+
                 this.dialog.close()
+            },
+
+            populateModalErrors(err) {
+                this.errors = {
+                    airline_id: (err.airline_id)? err.airline_id.join(". "): null,
+                    origin_city_id: (err.origin_city_id)? err.origin_city_id.join(". "): null,
+                    dest_city_id: (err.dest_city_id)? err.dest_city_id.join(". "): null,
+                    departure_at: (err.departure_at)? err.departure_at.join(". "): null,
+                    arrival_at: (err.arrival_at)? err.arrival_at.join(". "): null
+                }
+            },
+
+            handleCreateFlight(requestParams) {
+                axios.post("api/v1/flights", requestParams)
+                    .then(res => {
+                        this.$emit("reloadFlights")
+                        alert("Creation successfull")
+                        this.closeModal()
+                    })
+                    .catch(err => this.populateModalErrors(err.response.data.errors))
+            },
+
+            handleEditFlight(requestParams, id) {
+                axios.patch(`api/v1/flights/${id}`, requestParams)
+                    .then(res => {
+                        this.$emit("reloadFlights")
+                        alert("Edit successfull")
+                        this.closeModal()
+                    })
+                    .catch(err => this.populateModalErrors(err.response.data.errors))
             },
 
             handleModalSubmit() {
@@ -109,16 +156,10 @@
                 }
 
                 if (this.params.edit) {
-                    this.$emit('editFlight', requestParams, this.params.flightId)
+                    this.handleEditFlight(requestParams, this.params.flightId)
                 } else {
-                    this.$emit('createFlight', requestParams)
+                    this.handleCreateFlight(requestParams)
                 }
-            },
-
-            resetCities(newAirlineId) {
-                this.airlineId = newAirlineId
-                this.originId = 0
-                this.destinationId = 0
             }
         }
     }
@@ -215,7 +256,7 @@
             <button
                 id="modal-close-btn"
                 class="bg-gray-600 hover:bg-gray-400 text-white font-semibold py-2 px-4 text-white rounded-xl w-1/4 mx-1"
-                @click="show = false"
+                @click="closeModal"
             >Close</button>
         </div>
     </div>

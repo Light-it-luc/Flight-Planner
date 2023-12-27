@@ -26,13 +26,6 @@
                     departure: null,
                     arrival: null
                 },
-                modalErrors: {
-                    airline_id: null,
-                    origin_city_id: null,
-                    dest_city_id: null,
-                    departure_at: null,
-                    arrival_at: null
-                },
                 queryParams: null,
             }
         },
@@ -57,26 +50,6 @@
                     this.links = res.data.links
                 })
                 .catch(err => console.log(err))
-            },
-
-            clearModalErrors() {
-                this.modalErrors = {
-                    airline_id: null,
-                    origin_city_id: null,
-                    dest_city_id: null,
-                    departure_at: null,
-                    arrival_at: null
-                }
-            },
-
-            populateModalErrors(err) {
-                this.modalErrors = {
-                    airline_id: (err.airline_id)? err.airline_id.join(". "): null,
-                    origin_city_id: (err.origin_city_id)? err.origin_city_id.join(". "): null,
-                    dest_city_id: (err.dest_city_id)? err.dest_city_id.join(". "): null,
-                    departure_at: (err.departure_at)? err.departure_at.join(". "): null,
-                    arrival_at: (err.arrival_at)? err.arrival_at.join(". "): null
-                }
             },
 
             showCreateModal() {
@@ -106,44 +79,6 @@
                 }
 
                 this.modalShow = true
-            },
-
-            handleCreateFlight(requestParams) {
-                axios.post("api/v1/flights", requestParams)
-                    .then(res => {
-                        this.clearModalErrors()
-                        this.reloadFlights()
-                        this.modalShow = false
-                        alert("Creation successfull")
-                    })
-                    .catch(err => this.populateModalErrors(err.response.data.errors))
-            },
-
-            handleEditFlight(requestParams, id) {
-                axios.patch(`api/v1/flights/${id}`, requestParams)
-                    .then(res => {
-                        this.clearModalErrors()
-                        this.reloadFlights()
-                        this.modalShow = false
-                        alert("Edit successfull")
-                    })
-                    .catch(err => this.populateModalErrors(err.response.data.errors))
-            },
-
-            handleDeleteFlight(flight) {
-                const confirm = window.confirm(
-                    `Delete Flight Number ${flight.flight_number}` +
-                    `(${flight.origin.name} - ${flight.destination.name})?`
-                )
-
-                if (confirm) {
-                    axios.delete(`api/v1/flights/${flight.id}`)
-                        .then(res => {
-                            this.reloadFlights()
-                            alert("Flight deleated")
-                        })
-                        .catch(err => console.log(err))
-                }
             }
         },
 
@@ -162,9 +97,7 @@
         :cities="cities"
         v-model:show="modalShow"
         v-model:params="modalParams"
-        v-model:errors="modalErrors"
-        @edit-flight="handleEditFlight"
-        @create-flight="handleCreateFlight"
+        @reload-flights="reloadFlights"
     ></modal>
 
     <div class="my-4">
@@ -186,7 +119,7 @@
         :flights="flights"
         :columnTitles="['Flight Number', 'Origin', 'Destination', 'Departure', 'Arrival']"
         @edit-flight-modal="showEditModal"
-        @delete-flight="handleDeleteFlight"
+        @reload-flights="reloadFlights"
     ></vue-table>
 
     <pagination-links

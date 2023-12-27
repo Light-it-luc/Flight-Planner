@@ -5,6 +5,24 @@
             flights: Array,
             tableName: String,
             columnTitles: Array
+        },
+
+        methods: {
+            handleDeleteFlight(flight) {
+                const confirm = window.confirm(
+                    `Delete Flight Number ${flight.flight_number}` +
+                    `(${flight.origin.name} - ${flight.destination.name})?`
+                )
+
+                if (confirm) {
+                    axios.delete(`api/v1/flights/${flight.id}`)
+                        .then(res => {
+                            this.$emit("reloadFlights")
+                            alert("Flight deleated")
+                        })
+                        .catch(err => console.log(err))
+                }
+            }
         }
     }
 </script>
@@ -43,7 +61,7 @@
 
                         <button class="edit-btn dark:bg-red-600 hover:bg-red-400 text-white
                         font-semibold py-2 px-4 text-white rounded-xl"
-                        @click="$emit('deleteFlight', flight)"
+                        @click="handleDeleteFlight(flight)"
                         >Delete</button>
                     </div>
                 </td>
