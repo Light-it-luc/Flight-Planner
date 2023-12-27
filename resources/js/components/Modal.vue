@@ -68,9 +68,8 @@
                     this.dialog.showModal()
                 } else {
                     this.closeModal()
+                    this.$emit('update:show', newValue)
                 }
-
-                this.$emit('update:show', newValue)
             }
         },
 
@@ -114,6 +113,12 @@
                 } else {
                     this.$emit('createFlight', requestParams)
                 }
+            },
+
+            resetCities(newAirlineId) {
+                this.airlineId = newAirlineId
+                this.originId = 0
+                this.destinationId = 0
             }
         }
     }
@@ -130,11 +135,12 @@
         <!-- Modal Body -->
         <div id="modal-content" class="p-4 border-b">
             <!-- Select Airline -->
-            <div>
+            <div class="flex flex-col">
                 <objects-dropdown
                     title="Airline"
                     :objects="airlines"
                     v-model:selectedId="airlineId"
+                    @update:selectedId="resetCities"
                 ></objects-dropdown>
                 <p
                     class="text-xs text-red-500 pl-4 mb-4"

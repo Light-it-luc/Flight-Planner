@@ -3,7 +3,6 @@
     import DateInput from './DateInput.vue';
 
     export default {
-
         components: { ObjectsDropdown, DateInput },
 
         data() {
@@ -13,14 +12,13 @@
                 airlineId: 0,
                 departure: null,
                 arrival: null,
-                params: new URLSearchParams(window.location.search)
             }
         },
 
         props: {
             airlines: Array,
             cities: Array,
-            queryParams: String
+            queryParams: Object,
         },
 
         computed: {
@@ -60,13 +58,6 @@
             }
         },
 
-        watch: {
-            airlineId() {
-                this.originCityId = 0
-                this.destinationCityId = 0
-            }
-        },
-
         methods: {
             applyFilters() {
                 const filters = {
@@ -77,14 +68,22 @@
                     arrival: this.arrival,
                 }
 
+                const params = new URLSearchParams(window.location.search)
+
                 for (const [key, value] of Object.entries(filters)) {
                     if (value) {
-                        this.params.set(key, value)
+                        params.set(key, value)
                     } else {
-                        this.params.delete(key)
+                        params.delete(key)
                     }
                 }
-                this.$emit('update:queryParams', this.params.toString())
+                this.$emit("update:queryParams", params)
+            },
+
+            resetCities(newAirlineId) {
+                this.airlineId = newAirlineId
+                this.originCityId = 0
+                this.destinationCityId = 0
             }
         }
     }
@@ -96,25 +95,23 @@
             title="Airlines"
             :objects="allAirlines"
             v-model:selectedId="airlineId"
-            selectBoxId="select-airline"
+            @update:selectedId="resetCities"
         ></objects-dropdown>
 
         <objects-dropdown
             title="Origin"
             :objects="allowedOrigins"
             v-model:selectedId="originCityId"
-            selectBoxId="select-origin"
         ></objects-dropdown>
 
         <objects-dropdown
             title="Destination"
             :objects="allowedDestinations"
             v-model:selectedId="destinationCityId"
-            selectBoxId="select-destination"
         ></objects-dropdown>
     </div>
 
-    <div class="flex flex-row mx-20">
+    <div class="flex flex-row mx-20 mb-8">
         <date-input
             title="Departure"
             inputType="date"
@@ -129,7 +126,7 @@
             v-model:date="arrival"
         ></date-input>
 
-        <div class="ml-6 pt-8">
+        <div class="ml-6 mt-12">
             <button
                 id="filter-button"
                 class="font-semibold text-white dark:bg-gray-500 hover:bg-gray-400

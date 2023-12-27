@@ -5,15 +5,12 @@
         components: { Multiselect },
 
         data() {
-            return {
-                selectedOption: this.selectedId
-            }
+            return { selectedOption: this.selectedId }
         },
 
         props: {
             title: String,
             objects: Array,
-            selectBoxId: String,
             selectedId: Number
         },
 
@@ -37,7 +34,7 @@
 </script>
 
 <template>
-    <div :id="`select-${title.toLowerCase()}`" class="flex flex-col mx-4 mb-4 w-56">
+    <div class="flex flex-col mx-4 mb-4 w-56">
         <h3 class="mb-2 pl-4 font-semibold text-gray-800">{{ title }}</h3>
         <multiselect
             v-model="selectedOption"

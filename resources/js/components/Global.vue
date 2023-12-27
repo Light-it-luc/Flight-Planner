@@ -33,12 +33,12 @@
                     departure_at: null,
                     arrival_at: null
                 },
-                queryParams: null
+                queryParams: null,
             }
         },
 
         created() {
-            this.queryParams = (new URLSearchParams(window.location.search)).toString()
+            this.queryParams = new URLSearchParams(window.location.search)
 
             axios.get("api/v1/cities?all=true")
             .then(res => this.cities = res.data)
@@ -51,7 +51,7 @@
 
         methods: {
             reloadFlights() {
-                axios.get(`api/v1/flights?${this.queryParams}`)
+                axios.get(`api/v1/flights?${this.queryParams.toString()}`)
                 .then(res => {
                     this.flights = res.data.data
                     this.links = res.data.links
@@ -101,8 +101,8 @@
                     originId: flight.origin.id,
                     destinationId: flight.destination.id,
                     airlineId: flight.airline_id,
-                    departure: flight.departure_at.replace(" ", "T").slice(0, -3),
-                    arrival: flight.arrival_at.replace(" ", "T").slice(0, -3)
+                    departure: flight.departure_at.replace("T", " ").slice(0, -3),
+                    arrival: flight.arrival_at.replace("T", " ").slice(0, -3)
                 }
 
                 this.modalShow = true
@@ -149,7 +149,7 @@
 
         watch: {
             queryParams(newValue) {
-                history.pushState(null, "", "?" + newValue)
+                history.pushState(null, "", "?" + newValue.toString())
                 this.reloadFlights()
             }
         }
@@ -167,7 +167,7 @@
         @create-flight="handleCreateFlight"
     ></modal>
 
-    <div class="my-8">
+    <div class="my-4">
         <button
             class="mx-24 font-semibold text-white dark:bg-indigo-500 hover:bg-indigo-400
             w-38 py-1 px-2 rounded-md"
@@ -182,8 +182,8 @@
     ></flight-fliters>
 
     <vue-table
-        :flights="flights"
         tableName="Flights"
+        :flights="flights"
         :columnTitles="['Flight Number', 'Origin', 'Destination', 'Departure', 'Arrival']"
         @edit-flight-modal="showEditModal"
         @delete-flight="handleDeleteFlight"

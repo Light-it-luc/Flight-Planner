@@ -8,7 +8,7 @@
             changePage(url) {
                 const urlParams = url.split('?')[1]
                 const params = new URLSearchParams(urlParams)
-                this.$emit("update:queryParams", params.toString())
+                this.$emit("update:queryParams", params)
             }
         }
     }
