@@ -67,6 +67,9 @@
             },
 
             showEditModal(flight) {
+                const departure = new Date(flight.departure_at)
+                const arrival = new Date(flight.arrival_at)
+
                 this.modalParams = {
                     title: `Edit Flight ${flight.flight_number}`,
                     edit: true,
@@ -74,11 +77,17 @@
                     originId: flight.origin.id,
                     destinationId: flight.destination.id,
                     airlineId: flight.airline_id,
-                    departure: flight.departure_at.replace("T", " ").slice(0, -3),
-                    arrival: flight.arrival_at.replace("T", " ").slice(0, -3)
+                    departure: this.parseDateTime(departure),
+                    arrival: this.parseDateTime(arrival)
                 }
 
                 this.modalShow = true
+            },
+
+            parseDateTime(dateTime) {
+                const date = dateTime.toISOString().substring(0, 10)
+                const time = dateTime.toTimeString().substring(0, 5)
+                return `${date} ${time}`
             }
         },
 
