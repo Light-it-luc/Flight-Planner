@@ -28,7 +28,7 @@
 
     <div id="pages-container" class="mt-12 mb-4 px-12"></div>
 
-    <script>
+    <script type="module">
         const clearAirlinesTable = () => {
             $('tr[airline-id]').remove()
         }

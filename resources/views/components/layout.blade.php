@@ -9,8 +9,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script src="{{ asset('/js/functions.js') }}"></script>
-    <script src="{{ asset('js/jquery/jquery.js') }}"></script>
-    <script src="{{ asset('js/axios/axios.min.js') }}"></script>
 
     <!-- Scripts -->
     @vite(['resources/js/app.js'])
