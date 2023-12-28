@@ -24,11 +24,11 @@ class GetFlightsRequest extends FormRequest
     {
         return [
             'sort_by' => [Rule::in(['arrival_at', 'departure_at'])],
-            'origin' => ['sometimes', 'exists:cities,id'],
-            'destination' => ['sometimes', 'exists:cities,id'],
-            'airline' => ['sometimes', 'exists:airlines,id'],
-            'departure' => ['sometimes', 'date'],
-            'arrival' => ['sometimes', 'date']
+            'origin_id' => ['sometimes', 'exists:cities,id'],
+            'destination_id' => ['sometimes', 'exists:cities,id'],
+            'airline_id' => ['sometimes', 'exists:airlines,id'],
+            'departure_date' => ['sometimes', 'date'],
+            'arrival_date' => ['sometimes', 'date']
         ];
     }
 }

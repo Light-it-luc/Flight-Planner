@@ -61,11 +61,11 @@
         methods: {
             applyFilters() {
                 const filters = {
-                    origin: this.originCityId,
-                    destination: this.destinationCityId,
-                    airline: this.airlineId,
-                    departure: this.departure,
-                    arrival: this.arrival,
+                    origin_id: this.originCityId,
+                    destination_id: this.destinationCityId,
+                    airline_id: this.airlineId,
+                    departure_date: this.departure,
+                    arrival_date: this.arrival,
                     page: null
                 }
 

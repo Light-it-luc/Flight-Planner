@@ -14,12 +14,12 @@ class FlightController extends Controller
         $sortBy = $request->input('sort_by', 'id');
         $asc = $request->boolean('asc', true);
 
-        $airlineId = $request->integer('airline', 0);
-        $originId = $request->integer('origin', 0);
-        $destinationId = $request->integer('destination', 0);
+        $airlineId = $request->integer('airline_id', 0);
+        $originId = $request->integer('origin_id', 0);
+        $destinationId = $request->integer('destination_id', 0);
 
-        $departureDate = $request->string('departure', '');
-        $arrivalDate = $request->string('arrival', '');
+        $departureDate = $request->string('departure_date', '');
+        $arrivalDate = $request->string('arrival_date', '');
 
         return Flight::with(['airline', 'origin', 'destination'])
             ->order($sortBy, $asc)
