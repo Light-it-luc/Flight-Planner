@@ -27,7 +27,7 @@ class Flight extends Model
 
     public function destination(): BelongsTo
     {
-        return $this->belongsTo(City::class, 'dest_city_id');
+        return $this->belongsTo(City::class, 'destination_city_id');
     }
 
     public function airline(): BelongsTo
@@ -35,7 +35,7 @@ class Flight extends Model
         return $this->belongsTo(Airline::class);
     }
 
-    public static function generateFlightNumber($length = 8): string
+    public static function generateFlightNumber(): string
     {
         $uppercaseChars = collect(range('A', 'Z'));
         $sevenDigitNum = rand(1000000, 9999999);
@@ -57,10 +57,10 @@ class Flight extends Model
         });
     }
 
-    public function scopeFilterByDestination(Builder $query, int $destCityId): void
+    public function scopeFilterByDestination(Builder $query, int $destinationCityId): void
     {
-        $query->when($destCityId, function($query) use ($destCityId) {
-            $query->where('dest_city_id', $destCityId);
+        $query->when($destinationCityId, function($query) use ($destinationCityId) {
+            $query->where('destination_city_id', $destinationCityId);
         });
     }
 

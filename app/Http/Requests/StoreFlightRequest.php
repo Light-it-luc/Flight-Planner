@@ -24,12 +24,12 @@ class StoreFlightRequest extends FormRequest
     {
         return [
             'origin_city_id' => ['required', 'exists:cities,id'],
-            'dest_city_id' => ['required', 'exists:cities,id'],
+            'destination_city_id' => ['required', 'exists:cities,id'],
             'airline_id' => [
                 'required',
                 'exists:airlines,id',
                 Rule::exists('airline_city')->where('city_id', $this->input('origin_city_id')),
-                Rule::exists('airline_city')->where('city_id', $this->input('dest_city_id')),
+                Rule::exists('airline_city')->where('city_id', $this->input('destination_city_id')),
             ],
             'departure_at' => ['required', 'date_format:Y-m-d H:i'],
             'arrival_at' => ['required', 'date_format:Y-m-d H:i', 'after:departure_at']

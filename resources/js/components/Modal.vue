@@ -17,7 +17,7 @@
                 errors: {
                     airline_id: null,
                     origin_city_id: null,
-                    dest_city_id: null,
+                    destination_city_id: null,
                     departure_at: null,
                     arrival_at: null
                 }
@@ -90,7 +90,7 @@
                 this.errors = {
                     airline_id: null,
                     origin_city_id: null,
-                    dest_city_id: null,
+                    destination_city_id: null,
                     departure_at: null,
                     arrival_at: null
                 }
@@ -120,7 +120,7 @@
                 this.errors = {
                     airline_id: (err.airline_id)? err.airline_id.join(". "): null,
                     origin_city_id: (err.origin_city_id)? err.origin_city_id.join(". "): null,
-                    dest_city_id: (err.dest_city_id)? err.dest_city_id.join(". "): null,
+                    destination_city_id: (err.destination_city_id)? err.destination_city_id.join(". "): null,
                     departure_at: (err.departure_at)? err.departure_at.join(". "): null,
                     arrival_at: (err.arrival_at)? err.arrival_at.join(". "): null
                 }
@@ -149,7 +149,7 @@
             handleModalSubmit() {
                 const requestParams = {
                     origin_city_id: this.originId,
-                    dest_city_id: this.destinationId,
+                    destination_city_id: this.destinationId,
                     airline_id: this.airlineId,
                     departure_at: (this.departureDateTime) ? this.departureDateTime.replace("T", " ") : null,
                     arrival_at: (this.arrivalDateTime) ? this.arrivalDateTime.replace("T", " ") : null
@@ -211,8 +211,8 @@
                     ></dropdown>
                     <p
                         class="text-xs text-red-500 pl-4 mb-4"
-                        v-if="errors.dest_city_id"
-                    >{{ errors.dest_city_id }}</p>
+                        v-if="errors.destination_city_id"
+                    >{{ errors.destination_city_id }}</p>
                 </div>
             </div>
 
