@@ -29,6 +29,7 @@ Route::group([
     Route::post('/', 'store');
     Route::put('/{city}', 'update');
     Route::delete('/{city}', 'destroy');
+    Route::get('/all', 'all');
 });
 
 Route::group([
@@ -39,6 +40,7 @@ Route::group([
     Route::post('/', 'store');
     Route::put('/{airline}', 'update');
     Route::delete('/{airline}', 'destroy');
+    Route::get('/all', 'all');
 });
 
 Route::group([

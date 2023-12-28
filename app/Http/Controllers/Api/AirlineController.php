@@ -12,14 +12,6 @@ class AirlineController extends Controller
 {
     public function index(GetAirlinesRequest $request)
     {
-        $all = $request->boolean('all', false);
-
-        if ($all) {
-            return Airline::with('cities')
-                ->orderBy('name')
-                ->get();
-        }
-
         $sortBy = $request->input('sort_by', 'id');
         $ascending = $request->boolean('asc', true);
 
@@ -33,6 +25,13 @@ class AirlineController extends Controller
             ->filterByFlights($numberOfFlights)
             ->paginate(10)
             ->withQueryString();
+    }
+
+    public function all()
+    {
+        return Airline::with('cities')
+                ->orderBy('name')
+                ->get();
     }
 
     public function store(StoreAirlineRequest $request)

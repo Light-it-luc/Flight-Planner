@@ -33,11 +33,11 @@
         created() {
             this.queryParams = new URLSearchParams(window.location.search)
 
-            axios.get("api/v1/cities?all=true")
+            axios.get("api/v1/cities/all")
             .then(res => this.cities = res.data)
             .catch(err => console.log(err))
 
-            axios.get("api/v1/airlines?all=true")
+            axios.get("api/v1/airlines/all")
             .then(res => this.airlines = res.data)
             .catch(err => console.log(err))
         },

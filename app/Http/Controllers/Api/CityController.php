@@ -11,14 +11,6 @@ class CityController extends Controller
 {
     public function index(GetCitiesRequest $request)
     {
-        $all = $request->boolean('all', false);
-
-        if ($all) {
-            return City::with('airlines')
-                ->orderBy('name')
-                ->get();
-        }
-
         $sortBy = $request->input('sort_by', 'id');
         $ascending = $request->boolean('asc', true);
 
@@ -29,6 +21,13 @@ class CityController extends Controller
             ->filter($airlineId)
             ->paginate(10)
             ->withQueryString();
+    }
+
+    public function all()
+    {
+        return City::with('airlines')
+                ->orderBy('name')
+                ->get();
     }
 
     public function store(StoreCityRequest $request)
