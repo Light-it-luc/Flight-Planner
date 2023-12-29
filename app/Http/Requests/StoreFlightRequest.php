@@ -24,7 +24,7 @@ class StoreFlightRequest extends FormRequest
     {
         return [
             'origin_city_id' => ['required', 'exists:cities,id'],
-            'destination_city_id' => ['required', 'exists:cities,id'],
+            'destination_city_id' => ['required', 'exists:cities,id', 'different:origin_city_id'],
             'airline_id' => [
                 'required',
                 'exists:airlines,id',
