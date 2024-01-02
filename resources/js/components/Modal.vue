@@ -130,8 +130,8 @@
                 axios.post("api/v1/flights", requestParams)
                     .then(res => {
                         this.$emit("reloadFlights")
-                        alert("Creation successfull")
                         this.closeModal()
+                        this.$emit("toastSuccess", "Flight created!")
                     })
                     .catch(err => this.populateModalErrors(err.response.data.errors))
             },
@@ -140,8 +140,8 @@
                 axios.patch(`api/v1/flights/${id}`, requestParams)
                     .then(res => {
                         this.$emit("reloadFlights")
-                        alert("Edit successfull")
                         this.closeModal()
+                        this.$emit("toastSuccess", "Edit successful!")
                     })
                     .catch(err => this.populateModalErrors(err.response.data.errors))
             },

@@ -11,7 +11,7 @@ class FlightController extends Controller
 {
     public function index(GetFlightsRequest $request)
     {
-        $sortBy = $request->input('sort_by', 'id');
+        $sortBy = $request->string('sort_by', 'id');
         $asc = $request->boolean('asc', true);
 
         $airlineId = $request->integer('airline_id', 0);

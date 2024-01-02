@@ -3,6 +3,8 @@
     import Modal from './Modal.vue';
     import VueTable from './Table.vue';
     import PaginationLinks from './PaginationLinks.vue';
+    import { toast } from 'vue3-toastify';
+    import "vue3-toastify/dist/index.css";
     import axios from 'axios';
 
     export default {
@@ -35,11 +37,11 @@
 
             axios.get("api/v1/cities/all")
             .then(res => this.cities = res.data)
-            .catch(err => console.log(err))
+            .catch(err => this.errorToast("Error loading cities for filter component"))
 
             axios.get("api/v1/airlines/all")
             .then(res => this.airlines = res.data)
-            .catch(err => console.log(err))
+            .catch(err => this.errorToast("Error loading airlines for filter component"))
         },
 
         methods: {
@@ -49,7 +51,7 @@
                     this.flights = res.data.data
                     this.links = res.data.links
                 })
-                .catch(err => console.log(err))
+                .catch(err => this.errorToast("Oops! An error occurred when loading flights"))
             },
 
             showCreateModal() {
@@ -88,6 +90,22 @@
                 const date = dateTime.toISOString().substring(0, 10)
                 const time = dateTime.toTimeString().substring(0, 5)
                 return `${date} ${time}`
+            },
+
+            successToast(msg) {
+                toast(msg, {
+                    autoClose: 2000,
+                    theme: "auto",
+                    type: "success"
+                })
+            },
+
+            errorToast(msg) {
+                toast(msg, {
+                    autoClose: 3000,
+                    theme: "auto",
+                    type: "error"
+                })
             }
         },
 
@@ -106,6 +124,7 @@
         :cities="cities"
         v-model:show="modalShow"
         v-model:params="modalParams"
+        @toast-success="successToast"
         @reload-flights="reloadFlights"
     ></modal>
 
@@ -129,6 +148,8 @@
         :columnTitles="['Flight Number', 'Origin', 'Destination', 'Departure', 'Arrival']"
         @edit-flight-modal="showEditModal"
         @reload-flights="reloadFlights"
+        @toast-success="successToast"
+        @toast-error="errorToast"
     ></vue-table>
 
     <pagination-links

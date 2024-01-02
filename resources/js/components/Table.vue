@@ -18,9 +18,18 @@
                     axios.delete(`api/v1/flights/${flight.id}`)
                         .then(res => {
                             this.$emit("reloadFlights")
-                            alert("Flight deleated")
+                            this.$emit(
+                                "toastSuccess",
+                                "Flight deleted."
+                            )
                         })
-                        .catch(err => console.log(err))
+                        .catch(err => {
+                            console.log(err)
+                            this.$emit(
+                                "toastError",
+                                err.message
+                            )
+                        })
                 }
             }
         }
