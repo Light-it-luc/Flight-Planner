@@ -118,11 +118,11 @@
 
             populateModalErrors(err) {
                 this.errors = {
-                    airline_id: (err.airline_id)? err.airline_id.join(". "): null,
-                    origin_city_id: (err.origin_city_id)? err.origin_city_id.join(". "): null,
-                    destination_city_id: (err.destination_city_id)? err.destination_city_id.join(". "): null,
-                    departure_at: (err.departure_at)? err.departure_at.join(". "): null,
-                    arrival_at: (err.arrival_at)? err.arrival_at.join(". "): null
+                    airline_id: (err.airline_id)? err.airline_id.join(" "): null,
+                    origin_city_id: (err.origin_city_id)? err.origin_city_id.join(" "): null,
+                    destination_city_id: (err.destination_city_id)? err.destination_city_id.join(" "): null,
+                    departure_at: (err.departure_at)? err.departure_at.join(" "): null,
+                    arrival_at: (err.arrival_at)? err.arrival_at.join(" "): null
                 }
             },
 
