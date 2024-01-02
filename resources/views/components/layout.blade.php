@@ -8,8 +8,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="{{ asset('/js/functions.js') }}"></script>
+
+    <!-- Scripts -->
+    @vite(['resources/js/app.js'])
 
     <title>{{ isset($title) ? $title : 'Flight Planner'; }}</title>
 </head>

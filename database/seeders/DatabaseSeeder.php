@@ -22,18 +22,18 @@ class DatabaseSeeder extends Seeder
             $airlines = AirlineFactory::new()->count(15)->create();
 
             for ($i = 0; $i < $new_flights; $i++) {
-                [$origin, $dest] = $cities->random(2);
+                [$origin, $destination] = $cities->random(2);
                 $airline = $airlines->random();
 
                 FlightFactory::new()
                     ->count(1)
                     ->create([
                         'origin_city_id' => $origin,
-                        'dest_city_id' => $dest,
+                        'destination_city_id' => $destination,
                         'airline_id' => $airline
                     ]);
 
-                $airline->cities()->syncWithoutDetaching([$origin->id, $dest->id]);
+                $airline->cities()->syncWithoutDetaching([$origin->id, $destination->id]);
             }
         });
     }

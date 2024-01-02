@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\GetCitiesRequest;
 use App\Http\Requests\StoreCityRequest;
 use App\Models\City;
-use Illuminate\Http\Request;
 
 class CityController extends Controller
 {
@@ -22,6 +21,13 @@ class CityController extends Controller
             ->filter($airlineId)
             ->paginate(10)
             ->withQueryString();
+    }
+
+    public function all()
+    {
+        return City::with('airlines')
+                ->orderBy('name')
+                ->get();
     }
 
     public function store(StoreCityRequest $request)

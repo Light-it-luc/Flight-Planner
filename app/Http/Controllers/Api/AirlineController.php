@@ -7,7 +7,6 @@ use App\Http\Requests\GetAirlinesRequest;
 use App\Http\Requests\StoreAirlineRequest;
 use App\Http\Requests\UpdateAirlineRequest;
 use App\Models\Airline;
-use Illuminate\Http\Request;
 
 class AirlineController extends Controller
 {
@@ -26,6 +25,13 @@ class AirlineController extends Controller
             ->filterByFlights($numberOfFlights)
             ->paginate(10)
             ->withQueryString();
+    }
+
+    public function all()
+    {
+        return Airline::with('cities')
+                ->orderBy('name')
+                ->get();
     }
 
     public function store(StoreAirlineRequest $request)

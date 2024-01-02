@@ -1,4 +1,4 @@
-@props(['tableName', 'columnTitles', 'firstInput', 'secondInput'])
+@props(['tableName', 'columnTitles'])
 
 <table class="w-full text-sm text-center">
     <caption class="hidden">{{ $tableName }}</caption>
@@ -12,19 +12,6 @@
     </tr>
     </thead>
     <tbody>
-        <tr id="create-row" class="bg-white border-b border-gray-100">
-            <td class="py-4 px-6"></td>
-            <td class="py-4 px-6">
-                <x-input :name="$firstInput"></x-input>
-            </td>
-            <td class="py-4 px-6">
-                <x-input :name="$secondInput"></x-input>
-            </td>
-            <td class="py-4 px-6"></td>
-            <td class="py-4 px-6">
-                <x-button id="create-button" class="dark:bg-gray-500 hover:bg-gray-400">Create</x-button>
-            </td>
-        </tr>
 
         {{ $slot }}
 
