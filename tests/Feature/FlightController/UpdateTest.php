@@ -61,7 +61,7 @@ class UpdateTest extends TestCase
 
         $response = $this->patch(self::BASE_ENDPOINT . $this->flight->id, $body);
 
-        $response->assertStatus(Response::HTTP_OK);
+        $response->assertSuccessful();
     }
 
     public function test_record_is_correctly_updated(): void

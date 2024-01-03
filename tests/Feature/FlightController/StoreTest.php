@@ -80,7 +80,7 @@ class StoreTest extends TestCase
 
         $response = $this->postJson(self::ENDPOINT, $body);
 
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertUnprocessable();
     }
 
     public function test_creation_fails_on_inexistent_destination_id(): void
@@ -91,7 +91,7 @@ class StoreTest extends TestCase
 
         $response = $this->postJson(self::ENDPOINT, $body);
 
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertUnprocessable();
     }
 
     public function test_creation_fails_on_inexistent_airline_id(): void
@@ -102,7 +102,7 @@ class StoreTest extends TestCase
 
         $response = $this->postJson(self::ENDPOINT, $body);
 
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertUnprocessable();
     }
 
     public function test_creation_fails_if_same_origin_and_destination(): void
@@ -113,7 +113,7 @@ class StoreTest extends TestCase
 
         $response = $this->postJson(self::ENDPOINT, $body);
 
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertUnprocessable();
     }
 
     public function test_creation_fails_id_arrival_before_departure(): void
@@ -124,7 +124,7 @@ class StoreTest extends TestCase
 
         $response = $this->postJson(self::ENDPOINT, $body);
 
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertUnprocessable();
     }
 
     public function test_creation_fails_if_airline_does_not_work_with_origin(): void
@@ -137,7 +137,7 @@ class StoreTest extends TestCase
 
         $response = $this->postJson(self::ENDPOINT, $body);
 
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertUnprocessable();
     }
 
     public function test_creation_fails_if_airline_does_not_work_with_destination(): void
@@ -150,7 +150,7 @@ class StoreTest extends TestCase
 
         $response = $this->postJson(self::ENDPOINT, $body);
 
-        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->assertUnprocessable();
     }
 
     public static function requiredPropertyProvider(): array

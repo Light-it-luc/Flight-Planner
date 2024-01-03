@@ -50,7 +50,7 @@ class IndexTest extends TestCase
     {
         $response = $this->get(self::ENDPOINT);
 
-        $response->assertStatus(Response::HTTP_OK);
+        $response->assertSuccessful();
     }
 
     public function test_response_data_has_array_with_one_flight(): void
@@ -131,10 +131,7 @@ class IndexTest extends TestCase
 
         $response = $this->get(self::ENDPOINT);
 
-        $response->assertJson(fn (AssertableJson $json) =>
-            $json->has('data', 10)
-                 ->etc()
-        );
+        $response->assertJsonCount(10, 'data');
 
         $this->assertDatabaseCount('flights', 51);
     }
@@ -162,11 +159,13 @@ class IndexTest extends TestCase
 
         $endpoint = self::ENDPOINT . '?hello=world';
 
+        $url = url($endpoint);
+
         $response = $this->get($endpoint);
 
         $response->assertJsonPath(
             'links.2.url',
-            'http://localhost/' . $endpoint . '&page=2'
+            $url . '&page=2'
         );
     }
 }

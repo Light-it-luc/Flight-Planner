@@ -26,7 +26,7 @@ class DeleteTest extends TestCase
     {
         $response = $this->delete(self::BASE_ENDPOINT . $this->flight->id);
 
-        $response->assertStatus(Response::HTTP_OK);
+        $response->assertSuccessful();
 
         $this->assertDatabaseCount('flights', 0);
     }
