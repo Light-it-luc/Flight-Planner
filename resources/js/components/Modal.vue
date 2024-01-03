@@ -118,11 +118,11 @@
 
             populateModalErrors(err) {
                 this.errors = {
-                    airline_id: (err.airline_id)? err.airline_id.join(". "): null,
-                    origin_city_id: (err.origin_city_id)? err.origin_city_id.join(". "): null,
-                    destination_city_id: (err.destination_city_id)? err.destination_city_id.join(". "): null,
-                    departure_at: (err.departure_at)? err.departure_at.join(". "): null,
-                    arrival_at: (err.arrival_at)? err.arrival_at.join(". "): null
+                    airline_id: (err.airline_id)? err.airline_id.join(" "): null,
+                    origin_city_id: (err.origin_city_id)? err.origin_city_id.join(" "): null,
+                    destination_city_id: (err.destination_city_id)? err.destination_city_id.join(" "): null,
+                    departure_at: (err.departure_at)? err.departure_at.join(" "): null,
+                    arrival_at: (err.arrival_at)? err.arrival_at.join(" "): null
                 }
             },
 
@@ -130,8 +130,8 @@
                 axios.post("api/v1/flights", requestParams)
                     .then(res => {
                         this.$emit("reloadFlights")
-                        alert("Creation successfull")
                         this.closeModal()
+                        this.$emit("toastSuccess", "Flight created!")
                     })
                     .catch(err => this.populateModalErrors(err.response.data.errors))
             },
@@ -140,8 +140,8 @@
                 axios.patch(`api/v1/flights/${id}`, requestParams)
                     .then(res => {
                         this.$emit("reloadFlights")
-                        alert("Edit successfull")
                         this.closeModal()
+                        this.$emit("toastSuccess", "Edit successful!")
                     })
                     .catch(err => this.populateModalErrors(err.response.data.errors))
             },
